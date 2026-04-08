@@ -1,0 +1,205 @@
+#  ███       ███       ███          ████   ███           █████                                                            
+# ▒▒▒███    ▒▒▒███    ▒▒▒███       ▒▒███  ▒▒▒           ▒▒███                                                             
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███      ▒███  ████   █████  ███████    ██████  ████████    ██████  ████████   █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ▒███ ▒▒███  ███▒▒  ▒▒▒███▒    ███▒▒███▒▒███▒▒███  ███▒▒███▒▒███▒▒███ ███▒▒            
+#      ███▒      ███▒      ███▒     ▒███  ▒███ ▒▒█████   ▒███    ▒███████  ▒███ ▒███ ▒███████  ▒███ ▒▒▒ ▒▒█████           
+#    ███▒      ███▒      ███▒       ▒███  ▒███  ▒▒▒▒███  ▒███ ███▒███▒▒▒   ▒███ ▒███ ▒███▒▒▒   ▒███      ▒▒▒▒███          
+#  ███▒      ███▒      ███▒         █████ █████ ██████   ▒▒█████ ▒▒██████  ████ █████▒▒██████  █████     ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒          ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒     ▒▒▒▒▒   ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒     ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███     █████                                                       ███      
+#      ███▒     ▒▒███                                                       ▒▒▒███    
+#    ███▒     ███████   ██████   █████████████    ██████    ███████  ██████   ▒▒▒███  
+#  ███▒      ███▒▒███  ▒▒▒▒▒███ ▒▒███▒▒███▒▒███  ▒▒▒▒▒███  ███▒▒███ ███▒▒███    ▒▒▒███
+# ▒▒▒███    ▒███ ▒███   ███████  ▒███ ▒███ ▒███   ███████ ▒███ ▒███▒███████      ███▒ 
+#   ▒▒▒███  ▒███ ▒███  ███▒▒███  ▒███ ▒███ ▒███  ███▒▒███ ▒███ ▒███▒███▒▒▒     ███▒   
+#     ▒▒▒███▒▒████████▒▒████████ █████▒███ █████▒▒████████▒▒███████▒▒██████  ███▒     
+#       ▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒███ ▒▒▒▒▒▒  ▒▒▒       
+#                                                          ███ ▒███                   
+#                                                         ▒▒██████                    
+#                                                          ▒▒▒▒▒▒                     
+# ┏┓┏┓┳┳┳┓┏┳┓┏┓┳┓
+# ┃ ┃┃┃┃┃┃ ┃ ┣ ┣┫
+# ┗┛┗┛┗┛┛┗ ┻ ┗┛┛┗
+               
+on damage by player with priority monitor:
+    #victim is a player
+
+    set {_d} to damage
+    add {_d} to {-infuse::transient::%uuid of attacker%::recent_damage}
+    add 1 to {-infuse::transient::%uuid of attacker%::hits}
+    add 1 to {-infuse::transient::%uuid of victim%::hits_from::%uuid of attacker%}
+    add 1 to {-infuse::transient::%uuid of victim%::hits_from_total}
+    wait 30 seconds
+    subtract {_d} from {-infuse::transient::%uuid of attacker%::recent_damage}
+
+    if {-infuse::transient::%uuid of attacker%::recent_damage} < 0.1:
+        delete {-infuse::transient::%uuid of attacker%::recent_damage}
+
+on damage of mobs or players:
+    if has_infuse(attacker, "feather") is true:
+        if the fallen distance of attacker > {-infuse::config::feather::wind_burst_fall_min}:
+            force draw (1 large gust emitter particle) at eye of victim
+            set y component of velocity of attacker to 0
+            push attacker upwards with force {-infuse::config::feather::wind_burst_power}
+            set damage to damage + (the fallen distance of attacker) * {-infuse::config::feather::wind_burst_damage_multiplier}
+
+    if has_infuse(victim, "feather") is true:
+        if damage cause is fall:
+            cancel event
+        if damage cause is flying into a wall:
+            cancel event
+
+        if mod({-infuse::transient::%uuid of victim%::hits_from::%uuid of attacker%}, {-infuse::config::feather::trigger_hits}) is 0:
+            {-infuse::transient::%uuid of victim%::hits_from::%uuid of attacker%} ? 0 >= {-infuse::config::feather::trigger_hits}
+            if (size of all indices of {-infuse::transient::%uuid of victim%::rwc::*}) < {-infuse::config::feather::max_wind_charge}:
+                spawn_charge(victim)
+            # spawn item display at eye location of victim
+            # set {_e} to last spawned text display
+            # set the teleport duration of {_e} to 1 ticks
+            # set the item of {_e} to wind charge 
+            # locally suppress the variable save warning
+            # add {_e} to {-infuse::transient::%uuid of victim%::rwc::*}
+            # if {-infuse::transient::%uuid of victim%::rwc} ? 0 < {-infuse::config::feather::max_wind_charge}:
+            #     add 1 to {-infuse::transient::%uuid of victim%::rwc}
+
+    if has_infuse(attacker, "haste") is true:
+        atkspd_stack(attacker, {-infuse::config::haste::attack_speed_stack})
+        # if the no damage time of victim > 0 ticks:
+        run 1 tick later:
+            set victim's invulnerability time to "%{-infuse::config::haste::iframe_duration}% ticks" parsed as timespan
+
+    if has_infuse(attacker, "fire") is true:
+        if has_spark(attacker, "fire") is true:
+            ignite victim for {-infuse::config::fire::eternal_ticks}
+            force draw (15 flame particles with an extra value of 0.05) at midpoint(location of victim,eye of victim)
+            play sound "entity.blaze.shoot" at attacker
+        else:
+            if mod({-infuse::transient::%uuid of attacker%::hits}, {-infuse::config::fire::trigger_hits}) is 0:
+                {-infuse::transient::%uuid of attacker%::hits} ? 0 >= {-infuse::config::fire::trigger_hits}
+
+                ignite victim for {-infuse::config::fire::ignite_ticks}
+                force draw (10 flame particles with an extra value of 0.05) at midpoint(location of victim,eye of victim)
+                play sound "entity.blaze.shoot" at attacker
+    
+    if has_infuse(victim, "fire") is true:
+        damage cause is fall
+        loop all blocks in radius 1 around victim:
+            if loop-block is lava:
+                cancel event
+                exit loop
+
+    if has_infuse(attacker, "strength") is true:
+        victim is a mob
+        set damage to damage*{-infuse::config::strength::mob_damage}
+
+    if has_infuse(attacker, "thunder") is true:
+        if weather in world of attacker is rain:
+            mod({-infuse::transient::%uuid of attacker%::hits}, {-infuse::config::thunder::trigger_hits}/2) is 0
+            {-infuse::transient::%uuid of attacker%::hits} ? 0 >= {-infuse::config::thunder::trigger_hits}/2
+            lightning_chain(attacker, victim, {-infuse::config::thunder::true_damage}, {-infuse::config::thunder::lightning_chain_max}, {-infuse::config::thunder::lightning_chain_radius}, random uuid)
+        else:
+            mod({-infuse::transient::%uuid of attacker%::hits}, {-infuse::config::thunder::trigger_hits}) is 0
+            {-infuse::transient::%uuid of attacker%::hits} ? 0 >= {-infuse::config::thunder::trigger_hits}
+            lightning_chain(attacker, victim, {-infuse::config::thunder::true_damage}, {-infuse::config::thunder::lightning_chain_max}, {-infuse::config::thunder::lightning_chain_radius}, random uuid)
+
+
+on damage of player by player:
+    attacker is not victim
+
+    if has_infuse(attacker, "emerald") is true:
+        if {infuse::trust::%uuid of attacker%::%uuid of victim%} is set:
+            cancel event
+            subtract {-infuse::config::emerald::xp_share_amount} from attacker's total experience 
+            add {-infuse::config::emerald::xp_share_amount} to victim's total experience
+        else:
+            subtract {-infuse::config::emerald::xp_steal_amount} from victim's total experience 
+            add {-infuse::config::emerald::xp_steal_amount} to attacker's total experience
+
+    if has_infuse(victim, "emerald") is true:
+        if mod({-infuse::transient::%uuid of victim%::hits_from::%uuid of attacker%}, {-infuse::config::emerald::trigger_hits}) is 0:
+            {-infuse::transient::%uuid of victim%::hits_from::%uuid of attacker%} ? 0 >= {-infuse::config::emerald::trigger_hits}
+            loop all items in attacker's inventory:
+                if {-infuse::flags::consumable_items::*} contains loop-item:
+                    set cooldown of loop-item for attacker to {-infuse::config::emerald::hit_item_cooldown}
+                if loop-item is experience bottle:
+                    set cooldown of loop-item for attacker to {-infuse::config::emerald::hit_item_cooldown}
+
+    if has_infuse(attacker, "heart") is true:
+        if {infuse::trust::%uuid of attacker%::%uuid of victim%} is set:
+            set {_h} to min((health of attacker) - 10, 10)
+            if {_h} > 0:
+                cancel event
+                apply ambient potion effect of absorption of tier ({_h}/2) to victim for "%480/{_h}% seconds" parsed as timespan
+                set health of attacker to {-infuse::config::heart::return_after_hit}
+                play sound "entity.player.levelup" at attacker
+
+    if has_infuse(attacker, "invisibility") is true:
+        if mod({-infuse::transient::%uuid of attacker%::hits}, {-infuse::config::invisibility::trigger_hits}) is 0:
+            {-infuse::transient::%uuid of attacker%::hits} ? 0 >= {-infuse::config::invisibility::trigger_hits}
+            apply potion effect of blindness of tier 1 to victim for {-infuse::config::invisibility::blindness_duration}
+            # run 0 ticks later:
+            #     teleport attacker to location 1 block behind victim
+
+    if has_infuse(attacker, "regeneration") is true:
+        set {_time} to "%{-infuse::config::regeneration::duration_hit}% ticks" parsed as timespan
+
+        apply ambient potion effect of regeneration of tier {-infuse::config::regeneration::effect_hit_tier} to attacker for {_time}
+
+        if mod({-infuse::transient::%uuid of attacker%::hits}, {-infuse::config::regeneration::trigger_hits}) is 0:
+            if {-infuse::transient::%uuid of attacker%::hits} ? 0 >= {-infuse::config::regeneration::trigger_hits}:
+                set {_s} to saturation of victim
+                if {_s} > 0:
+                    set saturation of victim to {_s} - 1
+
+    if has_infuse(attacker, "speed") is true:
+        speed_stack(attacker, {-infuse::config::speed::hit_increase})
+
+    if has_infuse(victim, "speed") is true:
+        speed_stack(victim, {-infuse::config::speed::hit_decrease})
+
+    if has_infuse(attacker, "strength") is true:
+        set damage to damage + (the max health of attacker - the health of attacker) * {-infuse::config::strength::hp_loss_atk_bonus}
+
+        if has_spark(attacker, "strength") is true:
+            set damage to damage * 1.5
+            if hit is critical:
+                force draw (10 end rod particles with an extra value of 0.5) at middle(victim)
+            else:
+                force draw (10 crit particles with an extra value of 0.5) at middle(victim)
+                play sound "entity.player.attack.crit" at attacker
+
+        attacker's tool is not air
+        victim is blocking
+        if {-infuse::flags::axes::*} contains attacker's tool:
+            damage victim's active tool by {-infuse::config::strength::shield_disable_damage}
+            interrupt the usage of victim's active item
+            set item cooldown of shield for victim to {-infuse::config::strength::shield_disable_time}
+            make attacker damage victim by damage/{-infuse::config::strength::shield_penetration}
+            play sound "item.shield.break" at victim
+            play sound "entity.generic.hurt" at victim
+
+    if has_infuse(attacker, "frost") is true:
+        set {_f} to false
+        if has_spark(attacker, "frost") is true:
+            set {_f} to true
+        else if mod({-infuse::transient::%uuid of attacker%::hits}, {-infuse::config::frost::trigger_hits}) is 0:
+            if {-infuse::transient::%uuid of attacker%::hits} ? 0 >= {-infuse::config::frost::trigger_hits}:
+                set item cooldown of wind charge for victim to {-infuse::config::frost::wind_charge_cooldown}
+                set {_f} to true
+        if {_f} is true:
+            set freeze time of victim to {-infuse::config::frost::freeze_time}
+            apply potion effect of mining fatigue of tier {-infuse::config::mining_fatigue_tier} to victim for {-infuse::config::frost::mining_fatigue_time}
+            add 1 to {-infuse::transient::%uuid of victim%::freeze_stacks}
+            run 5 seconds later:
+                subtract 1 from {-infuse::transient::%uuid of victim%::freeze_stacks}
+                if {-infuse::transient::%uuid of victim%::freeze_stacks} < 0:
+                    set {-infuse::transient::%uuid of victim%::freeze_stacks} to 0
+               
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

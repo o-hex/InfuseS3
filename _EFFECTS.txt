@@ -1,0 +1,172 @@
+### EMERALD EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - Looting 5                                                             │
+│  - Permanent Hero of the Village                                         │
+│  - 2.0x XP Gain                                                          │
+│  - Consumables have a 50.0% chance of not being consumed                 │
+│  - Receiving 10 hits locks the attacker's food and XP                    │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Max level enchanting without bookshelves                              │
+│  - Each hit steals XP from your enemy                                    │
+│  - Hero of the Village 5.0                                               │
+│  - 4.0x XP Gain                                                          │
+│  - Consumables have a 75.0% chance not to be consumed                    │
+│  - Share XP with nearby teammates (hit them)                             │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### FEATHER EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - No fall damage                                                        │
+│  - Immune to kinetic energy                                              │
+│  - Windburst on all attacks                                              │
+│  - Falling from higher deals more damage                                 │
+│  - Windcharges have 2.0x velocity and 0.5x use speed                     │
+│  - Receiving 10 hits spawns an orbiting wind charge                      │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Launches the player upward                                            │
+│  - Falling from higher up deals 2.0 hearts on impact                     │
+│  - Impact radius and bounce height scale with distance fallen            │
+│  - Enemies hit by the shockwave are given slow falling                   │
+│  - Crouch to cancel the bounce                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### FIRE EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - Permanent Fire Resistance                                             │
+│  - Propel yourself through lava                                          │
+│  - Lava breaks your fall                                                 │
+│  - Snowballs turn into fireballs                                         │
+│  - 5th hit sets enemies on fire                                          │
+│  - Flame on ranged attacks                                               │
+│  - Fire spreads to nearby enemies that touch each other                  │
+│  - Extinguish nearby water sources when on fire                          │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Ignite all players before launching them into the air                 │
+│  - Extinguish nearby water sources and set flammable blocks on fire      │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### FROST EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - 10th hit freezes enemies and puts windcharges on cooldown             │
+│  - Frosted enemies create ice trails and get Mining Fatigue              │
+│  - 1.5x speed and 30.0% KB resistance on ice/snow                        │
+│  - Cools down and solidifies lava                                        │
+│  - Frost on ranged attacks                                               │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Apply frost and mining fatigue 2.0 on hit                             │
+│  - 2.0x speed on ice/snow                                                │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### THUNDER EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - Smite players on every 10th hit (5th if raining)                      │
+│  - Thunder chains to nearby enemies up to 10 times                       │
+│  - Tridents smite enemies when thrown                                    │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Smite all players up to 5 times                                       │
+│  - Radius increases the more enemies are inside                          │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### HASTE EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - Break blocks faster                                                   │
+│  - Tools have Fortune 5 and Unbreaking 10                                │
+│  - Enemies have reduced I-Frames                                         │
+│  - Each hit increases attack speed                                       │
+│  - Attack speed decays every 1.0s                                        │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Insta-mine all blocks                                                 │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### HEART EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - +5 Hearts                                                             │
+│  - Food items give 2.0 absorption hearts                                 │
+│  - Egaps give 10.0 absorption hearts                                     │
+│  - Hit teammates to give them extra HP as absorption hearts              │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - +10.0 hearts                                                          │
+│  - Heals you the amount of damage you dealt in the past 30.0s            │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### INVISIBILITY EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - Invisibility and no entity collision                                  │
+│  - Mobs do not target you                                                │
+│  - Immune to wither and darkness                                         │
+│  - Obscures kill credit                                                  │
+│  - 10th hit and ranged attacks give blindness                            │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Creates a smoke screen                                                │
+│  - Applies wither and blindness to enemies                               │
+│  - Gives true invisibility to you and trusted players                    │
+│  - Smoke radius increases with more teammates inside                     │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### OCEAN EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - Dolphin's Grace and Water Breathing                                   │
+│  - Drown nearby enemies                                                  │
+│  - Standing in rain increases drowning damage                            │
+│  - Nearby teammates get water breathing                                  │
+│  - Tridents have loyalty 5 and pull enemies                              │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Creates a whirlpool that pulls in nearby enemies                      │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### REGENERATION EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - No hunger loss and can eat anytime                                    │
+│  - Permanent Regeneration                                                │
+│  - Every hit gives Regeneration 2 for 3.0s                               │
+│  - All food gives +3.0 saturation bars                                   │
+│  - 10th hit takes away 1.0 hunger bar from target                        │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Damage dealt heals you and nearby teammates                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### SPEED EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - +0.2x movement speed                                                  │
+│  - Each hit increases speed level                                        │
+│  - Getting hit lowers speed level                                        │
+│  - Improved projectile speed, accuracy, and range                        │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Dash forward dealing damage                                           │
+└──────────────────────────────────────────────────────────────────────────┘
+
+### STRENGTH EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - Shield disables are 2.0x longer                                       │
+│  - Damages shields by 20 when disabling                                  │
+│  - 0.5x damage penetrates when disabling shields                         │
+│  - 2.0x damage to all mobs                                               │
+│  - +0.3 attack damage for every 1HP Lost                                 │
+│  - Piercing on ranged attacks                                            │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - All attacks are critical                                              │
+└──────────────────────────────────────────────────────────────────────────┘

@@ -1,0 +1,297 @@
+#  ███       ███       ███          ████   ███           █████                                                            
+# ▒▒▒███    ▒▒▒███    ▒▒▒███       ▒▒███  ▒▒▒           ▒▒███                                                             
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███      ▒███  ████   █████  ███████    ██████  ████████    ██████  ████████   █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ▒███ ▒▒███  ███▒▒  ▒▒▒███▒    ███▒▒███▒▒███▒▒███  ███▒▒███▒▒███▒▒███ ███▒▒            
+#      ███▒      ███▒      ███▒     ▒███  ▒███ ▒▒█████   ▒███    ▒███████  ▒███ ▒███ ▒███████  ▒███ ▒▒▒ ▒▒█████           
+#    ███▒      ███▒      ███▒       ▒███  ▒███  ▒▒▒▒███  ▒███ ███▒███▒▒▒   ▒███ ▒███ ▒███▒▒▒   ▒███      ▒▒▒▒███          
+#  ███▒      ███▒      ███▒         █████ █████ ██████   ▒▒█████ ▒▒██████  ████ █████▒▒██████  █████     ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒          ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒     ▒▒▒▒▒   ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒     ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███                                                  ███           ███      
+#      ███▒                                                  ▒▒▒           ▒▒▒███    
+#    ███▒     ███████  ██████  ████████    ██████  ████████  ████   ██████   ▒▒▒███  
+#  ███▒      ███▒▒███ ███▒▒███▒▒███▒▒███  ███▒▒███▒▒███▒▒███▒▒███  ███▒▒███    ▒▒▒███
+# ▒▒▒███    ▒███ ▒███▒███████  ▒███ ▒███ ▒███████  ▒███ ▒▒▒  ▒███ ▒███ ▒▒▒      ███▒ 
+#   ▒▒▒███  ▒███ ▒███▒███▒▒▒   ▒███ ▒███ ▒███▒▒▒   ▒███      ▒███ ▒███  ███   ███▒   
+#     ▒▒▒███▒▒███████▒▒██████  ████ █████▒▒██████  █████     █████▒▒██████  ███▒     
+#       ▒▒▒  ▒▒▒▒▒███ ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒     ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒       
+#            ███ ▒███                                                                
+#           ▒▒██████                                                                 
+#            ▒▒▒▒▒▒                                                                  
+options:
+    prefix: "&e[i] &7» &r"
+# ┳┓┏┓┏┓┏┓┏┓┓ ┏┳┓┳┳┓┏┓
+# ┣┫┣ ┗┓┃┃┣┫┃┃┃┃┃┃┃┃┃┓
+# ┛┗┗┛┗┛┣┛┛┗┗┻┛┛┗┻┛┗┗┛
+
+# on respawn:
+#     wait 1 tick
+#     if has_infuse(player, "fire") is true:
+#         apply infinite fire resistance of tier 1 to player:
+#             hide the particles
+#             hide the icon
+#     if has_infuse(player, "emerald") is true:
+#         apply infinite hero of the village of tier 3 to player:
+#             hide the particles
+#             hide the icon
+
+on death of player:
+    set {_u} to uuid of victim
+    set {_e1} to {infuse::stats::%{_u}%::primary} ? "none"
+    set {_e2} to {infuse::stats::%{_u}%::secondary} ? "none"
+    if {_e1} is not "none":
+        spark_end(victim, {_e1})
+        set {_a1} to {infuse::stats::%{_u}%::primary::a} ? false
+        set {_item1} to get_item({_e1}, {_a1})
+        set_infuse(victim, "primary", "none", false)
+        drop {_item1} at location of victim
+
+    if {_e2} is not "none":
+        spark_end(victim, {_e2})
+        set {_a2} to {infuse::stats::%{_u}%::secondary::a} ? false
+        set {_item2} to get_item({_e2}, {_a2})
+        set_infuse(victim, "secondary", "none", false)
+        drop {_item2} at location of victim
+            
+    if {-infuse::transient::%{_u}%::frost_boots} is set:
+        drop {-infuse::transient::%{_u}%::frost_boots} at location of victim
+        clear {-infuse::transient::%{_u}%::frost_boots}
+
+    loop all indices of {-infuse::transient::%{_u}%::rwc::*}:
+        kill {-infuse::transient::%{_u}%::rwc::%loop-value%::inner}
+        kill {-infuse::transient::%{_u}%::rwc::%loop-value%::outer}
+
+    clear {-infuse::transient::%{_u}%::rwc::*}
+
+    attacker is a player
+    if has_infuse(attacker, "invisibility") is true:
+        set {_m} to death message
+        replace first "%attacker%" in {_m} with "&kiiiiiiiiiiiiiiiiii&r" # jank?
+        set death message to {_m}
+
+    if {-infuse::config::head_drop} is true:
+        attacker is not victim
+        set {_i} to player head
+        set skull owner of {_i} to victim
+        drop {_i} at location of victim
+
+
+# ┏┳┏┓┳┳┓┳┳┓┏┓  ┏  ┓ ┏┓┏┓┓┏┳┳┓┏┓
+#  ┃┃┃┃┃┃┃┃┃┃┓  ┃  ┃ ┣ ┣┫┃┃┃┃┃┃┓
+# ┗┛┗┛┻┛┗┻┛┗┗┛  ┛  ┗┛┗┛┛┗┗┛┻┛┗┗┛
+
+on first join:
+    if {-infuse::config::roll_first_join} is true:
+        loop {infuse::effects::*}:
+            if loop-value is not "earth" or "ender": # "except" keyword randomly breaks here??? i dont know it just stopped working, whatever this will do
+                add loop-value to {_e::*}
+        set {_eff} to random element out of {_e::*}
+
+        if {-infuse::config::do_roll_animation} is true:
+            wait 2 seconds
+            animate_roll(player, {_eff})
+        else:
+            wait 2 seconds
+            set {_icon} to {-infuse::icon::%{_eff}%::default-normal::1}
+            set {_display_name} to join ((the first character of {_eff}) in uppercase) and subtext of {_eff} from characters 2 to (the length of {_eff})
+            send title ("%{_icon}%") with subtitle ("&e%{_display_name}% Effect") to player for (2 seconds) with fadein (10 ticks) and fadeout (10 ticks)
+        
+        set_infuse(player, "primary", {_eff}, false)
+
+on join:
+    loop {infuse::effects::*}:
+        cooldown_start(player, loop-value)
+
+on leave:
+    if {-infuse::transient::%uuid of player%::frost_boots} is set:
+        set the boots of player to {-infuse::transient::%uuid of player%::frost_boots}
+
+    loop all indices of {-infuse::transient::%uuid of player%::rwc::*}:
+        kill {-infuse::transient::%uuid of player%::rwc::%loop-value%::inner}
+        kill {-infuse::transient::%uuid of player%::rwc::%loop-value%::outer}
+
+    clear {-infuse::transient::%uuid of player%::*}
+
+# ┏┓┏┓┏┳┓┳┏┓┳┓  ┏┓┏┓┏┓┏┓┏┓┏┳┓┏┓
+# ┃┃┃┃ ┃ ┃┃┃┃┃  ┣ ┣ ┣ ┣ ┃  ┃ ┗┓
+# ┣┛┗┛ ┻ ┻┗┛┛┗  ┗┛┻ ┻ ┗┛┗┛ ┻ ┗┛
+
+on entity potion effect:
+    if the event-potion effect action is removed or cleared:
+        wait 1 tick
+
+        set {_s} to event-command sender
+        if has_infuse({_s}, "fire") is true:
+            apply infinite ambient potion effect of fire resistance of tier 1 to {_s}
+
+        if has_infuse({_s}, "emerald") is true:
+            if has_spark({_s}, "emerald") is true:
+                apply infinite ambient potion effect of hero of the village of tier 5 to {_s}
+            else:
+                apply infinite ambient potion effect of hero of the village of tier 3 to {_s}
+
+        if has_infuse({_s}, "ocean") is true:
+            apply infinite ambient potion effect of water breathing of tier 1 to {_s}
+            apply infinite ambient potion effect of dolphin's grace of tier 1 to {_s}
+
+        if has_infuse({_s}, "invisibility") is true:
+            apply infinite invisibility of tier 1 to {_s}:
+                hide the icon
+
+        if has_infuse({_s}, "regeneration") is true:
+            apply infinite ambient potion effect of regeneration of tier 1 to {_s}
+            apply infinite ambient potion effect of saturation 1 to {_s}
+
+    if the event-potion effect action is added:
+        wait 1 tick
+        if has_infuse({_s}, "invisibility") is true:
+            if event-entity has wither:
+                remove wither from event-entity
+            if event-entity has darkness:
+                remove darkness from event-entity
+
+# ┏┓┏┓┳┓┏┳┓┳┓┏┓┓   ┏┓┏┓┏┳┓
+# ┃ ┃┃┃┃ ┃ ┣┫┃┃┃   ┗┓┣  ┃ 
+# ┗┛┗┛┛┗ ┻ ┛┗┗┛┗┛  ┗┛┗┛ ┻ 
+
+function checkBind(p: player, a: text) :: boolean:
+    set {_u} to uuid of {_p}
+    set {_t} to false
+
+    if {infuse::stats::%{_u}%::bind::primary} is {_a}:
+        set {_e} to {infuse::stats::%{_u}%::primary}
+
+        if {infuse::stats::%{_u}%::primary} is set:
+            spark_start({_p}, "primary", {-infuse::config::%{_e}%::spark}, {-infuse::config::%{_e}%::cd})
+            set {_t} to true
+    
+    if {infuse::stats::%{_u}%::bind::secondary} is {_a}:
+        set {_e} to {infuse::stats::%{_u}%::secondary}
+
+        if {infuse::stats::%{_u}%::secondary} is set:
+            spark_start({_p}, "secondary", {-infuse::config::%{_e}%::spark}, {-infuse::config::%{_e}%::cd})
+            set {_t} to true
+            
+    return {_t}
+
+on swap item:
+    if player is sneaking:
+        if checkBind(player, "sneak-swap") is true:
+            cancel event
+    else:
+        if checkBind(player, "swap") is true:
+            cancel event
+
+on drop:
+    if player is sneaking:
+        if checkBind(player, "sneak-drop") is true:
+            cancel event
+    else:
+        if checkBind(player, "drop") is true:
+            cancel event
+
+on sneak toggle:
+    player is not sneaking # checks if the player is sneaking at that very moment before the sneak is passed
+    checkBind(player, "sneak")
+
+on consume:
+    set {_pot} to event-item
+    set {_cmd} to custom model data of {_pot}
+    floor({_cmd}/100) is 4140 or 4141
+    set {_a2} to true if floor({_cmd}/100) is 4141 else false
+    set {_cmd} to mod({_cmd}, 100)
+    cancel event
+
+    if {_cmd} is 1:
+        set {_e} to "emerald"
+    else if {_cmd} is 2:
+        set {_e} to "feather"
+    else if {_cmd} is 3:
+        set {_e} to "fire"
+    else if {_cmd} is 4:
+        set {_e} to "frost"
+    else if {_cmd} is 5:
+        set {_e} to "thunder"
+    else if {_cmd} is 6:
+        set {_e} to "haste"
+    else if {_cmd} is 7:
+        set {_e} to "heart"
+    else if {_cmd} is 8:
+        set {_e} to "invisibility"
+    else if {_cmd} is 9:
+        set {_e} to "ocean"
+    else if {_cmd} is 10:
+        set {_e} to "regeneration"
+    else if {_cmd} is 11:
+        set {_e} to "speed"
+    else if {_cmd} is 12:
+        set {_e} to "strength"
+
+    set {_u} to uuid of player
+    set {_slot} to "secondary" if player is sneaking else "primary"
+    if {-infuse::config::lock_effects} is true:
+        if {-infuse::config::primary_effects::*} contains {_e}:
+            set {_slot} to "primary"
+        else if {-infuse::config::secondary_effects::*} contains {_e}:
+            set {_slot} to "secondary"
+
+    set {_other} to "primary" if {_slot} is "secondary" else "secondary"
+    set {_oe} to {infuse::stats::%{_u}%::%{_slot}%}
+    set {_a1} to {infuse::stats::%{_u}%::%{_slot}%::a} ? false
+
+    if {_oe} is set:
+        if ({infuse::active::%{_u}%::%{_oe}%::s} ? 0) + ({infuse::active::%{_u}%::%{_oe}%::c} ? 0) > 0:
+            send "%{@prefix}%You cannot swap your %{_slot}% slot until %{_oe}% has finished its cycle!"
+            stop
+
+    if {-infuse::config::allow_same_effects} is false:
+        if {infuse::stats::%{_u}%::%{_other}%} is {_e}:
+            send "%{@prefix}%You already have this effect equipped in your %{_other}% slot!"
+            stop
+
+    if {_oe} is {_e}:
+        send "%{@prefix}%You already have %{_e}% equipped in your %{_slot}% slot!"
+        stop
+
+    remove 1 of {_pot} from player's inventory
+
+    if {_oe} is set:
+        if {_oe} is not "none":
+            if player has enough space for 1 bedrock:
+                set {_oi} to get_item({_oe}, {_a1})
+                give player {_oi}
+                send "%{@prefix}%Swapped your %{_oe}% effect."
+            else:
+                send "%{@prefix}%Your inventory is full! The old effect was dropped." to player
+                set {_oi} to get_item({_oe}, {_a1})
+                drop {_oi} at player
+    
+    set_infuse(player, {_slot}, {_e}, {_a2})
+
+    set {_color} to "&b" if {_slot} is "primary" else "&d"
+    send "%{@prefix}%Applied &f%{_e}% &7to %{_color}%%{_slot}%&7 slot."
+    play sound "block.enchantment_table.use" with pitch (1.1 if {_slot} is "primary" else 1.4) to player
+
+# ┓ ┏┏┓┳┓┓ ┳┓┏┓┳┳┏┓┳┓┳┓
+# ┃┃┃┃┃┣┫┃ ┃┃┃┓┃┃┣┫┣┫┃┃
+# ┗┻┛┗┛┛┗┗┛┻┛┗┛┗┛┛┗┛┗┻┛
+
+on bound enter:
+    loop {infuse::disabled_bound_ids::*}:
+        if bound id of event-bound is loop-value:
+            set {infuse::disabled::%uuid of player%} to true
+            stop
+
+on bound exit:
+    loop {infuse::disabled_bound_ids::*}:
+        if bound id of event-bound is loop-value:
+            clear {infuse::disabled::%uuid of player%}
+            stop
+
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

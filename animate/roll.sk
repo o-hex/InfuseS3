@@ -1,0 +1,105 @@
+#  ███       ███       ███                                ███                             █████                      
+# ▒▒▒███    ▒▒▒███    ▒▒▒███                             ▒▒▒                             ▒▒███                       
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███       ██████   ████████   ████  █████████████    ██████   ███████    ██████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ▒▒▒▒▒███ ▒▒███▒▒███ ▒▒███ ▒▒███▒▒███▒▒███  ▒▒▒▒▒███ ▒▒▒███▒    ███▒▒███          
+#      ███▒      ███▒      ███▒      ███████  ▒███ ▒███  ▒███  ▒███ ▒███ ▒███   ███████   ▒███    ▒███████           
+#    ███▒      ███▒      ███▒       ███▒▒███  ▒███ ▒███  ▒███  ▒███ ▒███ ▒███  ███▒▒███   ▒███ ███▒███▒▒▒            
+#  ███▒      ███▒      ███▒        ▒▒████████ ████ █████ █████ █████▒███ █████▒▒████████  ▒▒█████ ▒▒██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒           ▒▒▒▒▒▒▒▒ ▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒    ▒▒▒▒▒   ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███                    ████  ████  ███      
+#      ███▒                    ▒▒███ ▒▒███ ▒▒▒███    
+#    ███▒    ████████   ██████  ▒███  ▒███   ▒▒▒███  
+#  ███▒     ▒▒███▒▒███ ███▒▒███ ▒███  ▒███     ▒▒▒███
+# ▒▒▒███     ▒███ ▒▒▒ ▒███ ▒███ ▒███  ▒███      ███▒ 
+#   ▒▒▒███   ▒███     ▒███ ▒███ ▒███  ▒███    ███▒   
+#     ▒▒▒███ █████    ▒▒██████  █████ █████ ███▒     
+#       ▒▒▒ ▒▒▒▒▒      ▒▒▒▒▒▒  ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒       
+
+# function d_c(p: player, i: integer): 
+#     loop circle({_p}, 1, 100, vector(0,1,0), {_i}):
+#         set {_n} to (vector from {_p} to loop-location)
+#         set vector length of {_n} to 0.2
+#         draw 0 end rod particles with an offset ({_n} + vector(0,1,0)) at loop-location # middle({_p})
+#         wait 1 tick
+
+function animate_roll(p: player, seff: text):
+    set {_u} to uuid of {_p}
+    set {_ticks} to 0
+    set {_rot} to 0
+
+    play sound "block.respawn_anchor.charge" with pitch 0.5 at {_p}
+    play sound "block.beacon.activate" with pitch 2 at {_p}
+    loop {_eff} in {infuse::effects::*}:
+        if {_eff} is not "earth" or "ender":
+            spawn text display at (location 1 block below {_p})
+            set {_e} to last spawned entity
+            set {_se} to last spawned entity if {_eff} is {_seff}
+
+            set billboard of {_e} to center
+            set the teleport duration of {_e} to 1 ticks
+            add nbt from "{background:0}" to nbt of {_e}
+            set display component of {_e} to mini message from {-infuse::icon::%{_eff}%::default-normal::1}
+            add {_e} to {_disp::*}
+    
+    # loop 0, 60, 120, 180, 240 and 300:
+    #     d_c({_p}, loop-value)
+
+    while {_ticks} < 100:
+        if {_p} is not online:
+            kill {_disp::*}
+            stop
+        add 3 to {_rot}
+        if {_rot} > 360:
+            remove 360 from {_rot}
+        set {_origin} to eye location of {_p}
+        set {_count} to size of {_disp::*}
+        if {_count} is 0:
+            stop
+        loop {_e} in {_disp::*}:
+            set {_i} to loop-iteration-2
+            if {_e} is alive:
+                set {_v} to vector(1.8, -0.7, 0)
+                rotate {_v} around y-axis by {_rot} + ({_i} * (360 / {_count}))
+                set {_target} to {_origin} ~ {_v}
+                add (0.15 * sin({_rot} * 2 + ({_i} * 90))) to y-coord of {_target}
+                teleport {_e} to {_target}
+            else:
+                remove {_e} from {_disp::*}
+
+        wait 1 tick
+        add 1 to {_ticks}
+
+    teleport {_disp::*} to middle({_p})
+    wait 2 ticks
+    kill {_disp::*} except {_se}
+    clear {_disp::*}
+    
+    loop flat_circle(middle({_p}), 1, {_i}, 80):
+        set {_n} to (vector from middle({_p}) to loop-location)
+        set vector length of {_n} to 0.6
+        draw (0 end rod particles with an offset {_n}) at middle({_p})
+    play sound "block.beacon.power_select" with pitch 0.9 at {_p}
+
+    set {_icon} to {-infuse::icon::%{_seff}%::default-normal::1}
+    set {_display_name} to join ((the first character of {_seff}) in uppercase) and subtext of {_seff} from characters 2 to (the length of {_seff})
+    
+    send title ("%{_icon}%") with subtitle ("&e%{_display_name}% Effect") to {_p} for (2 seconds) with fadein (10 ticks) and fadeout (10 ticks)
+    
+    teleport {_se} to location 0.5 block above eye of {_p}
+    wait 40 tick
+    teleport {_se} to location 1 block below {_p}
+    wait 2 tick
+    kill {_se}
+
+# command /roll <text>:
+#     trigger:
+#         animate_roll(player, arg-1)
+
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

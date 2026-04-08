@@ -1,0 +1,239 @@
+# DOCUMENTATION - INFUSE S3
+
+## CLARIFICATIONS
+        
+### FEATURES THAT WON'T BE ADDED
+
+    Currently, 2 features will not be implemented into the skript:
+        - Veinminer
+        - Auto-smelting
+        
+    This is because skript is too inefficient to do it when there are
+    already plugins available to allow this feature
+    It is trivial to modify the code and hook into the plugins using permissions
+    
+### FEATURES THAT COULD BE ADDED
+    
+    -> Haste bow speed
+        - The client only has 3 stages for the bow charge animation
+        - The charge animation is solely determined by the client
+          so there is no way to speed up the animation even with resource packs
+          This is because the client loops through the 3 charging animations
+          with predetermined delays
+        
+        - The only way I can do it would be to make the bow fire "prematurely"
+          which is letting the bow shoot before the animation completes
+          but it is very ugly and there is no way to let players know the
+          actual duration remaining until the bow reaches full charge
+          
+    -> X hits reveals Y
+        - This requires adding additional resources into the resource pack
+          which I already have, but a lot of players already have a health
+          and armor indicator, writing an additional feature in skript that
+          is niche and doesn't add any real benefit to PVP will also increase
+          the overhead of the skript
+          
+    -> Drowning with air bubbles
+        - Currently the drown mechanic does not use any bubbles and periodically
+          deals damage to nearby non-trusted players.
+          The original implementation may have used air bubbles but that would
+          require changing the remaining air of the player every tick so that the
+          animation is complete. Worst part is the bar can never fully run out and
+          will always have 1 bubble remaining, which will confuse players
+        
+        - I believe that the current implementation is the best UI wise and reduces
+          confusion for the players.
+    
+    -> X hits teleports you behind your enemy (Invisibility Effect)
+        - Contrary to the others, this is easy to implement, however making it work
+          reliably is an issue, if the enemy knows an invis player is attacking them
+          they could use it against them and since there is no way to stop yourself
+          from teleporting where behind them, the attacker could get trapped, suffocated
+          or glitch into protected areas, which introduces a lot of variables to consider
+          
+    -> Swimming in powdered snow
+        - I don't really see a reason to implement this. Because unlike lava, which can form large seas in
+          the nether and be used as a viable form of transportation/escaping during combat, there isn't
+          enough powdered snow naturally generating to be viable to "swim" (fall-flying) in it and be
+          used for anything.
+
+        - The swim animation also runs on the same tick loop as the heartbeat, which will be checking if the
+          player is in powdered snow every single tick. (lag/overhead)
+        
+### EASTER EGGS
+    These are added to compensate for the features that I didn't add
+    
+    -> Frost effect now also freezes lava source blocks
+        - This means frost allows you to walk on lava
+        
+    -> Fire effect converts snowballs into fireballs
+        - There is now a cooldown for the fireballs
+
+## COMMANDS
+
+Notes:
+- All commands are prefixed with "infuse"
+- If one of the base commands aren't working, there's likely a conflict with other plugins or mods that you have installed
+- If that is the case, please prefix all of the commands with "infuse", ie. /infuse:infuse or /infuse:bind
+
+### /infuse:infuse
+    -> /infuse <add|remove> <flags>
+    -> add     - Adds an infuse effect
+    -> remove  - Removes an infuse effect
+        -> get     - Shows the effects in either (or both) slots of a player
+        -> history - Shows the last 30 changes a player had to their infuse
+    
+    -> FLAGS
+        - "-s=" - slot:         "-s=<primary|secondary>"
+        - "-a=" - augments:     "-a=<true|false>"
+        - "-p=" - player:       "-p=<player>"
+        - "-e=" - effect:       "-e=<effect>"
+        
+    -> EX.
+        - /infuse add -s=primary -e=fire
+        - /infuse add -e=fire -s=secondary -p=stanczyk
+        - /infuse:infuse add -e=feather -s=secondary -p=stanczyk
+        - /infuse:infuse remove -s=primary
+        
+    -> NOTES
+        - if "-p" is unspecified, it will default to the player running the command
+        - if "-a" is unspecified, it will default to false
+        - The 2 unclassified effects, earth and ender, do not have a non-augmented version
+          thus an "-a" flag must be specified when equipping them
+        - The order of the flags do not matter
+        
+### /infuse:bind
+    -> /<bind|controls|controlset|control> <primary|secondary> <swap|drop|sneak|sneak-drop|sneak-swap|none>
+    -> Binds a specified action combination to the activation of a spark in a specified slot
+    -> Recommended values are sneak-drop and sneak-swap
+        - "none" resets the infuse binds for that slot
+    
+    -> EX.
+        - /bind primary sneak-drop
+        - /bind primary sneak-swap
+        - /bind primary none
+
+### /infuse:toggledisplay
+    -> /<toggledisplay|display|toggleicon|simpleicon>
+    -> Swaps between the simple and icon display
+    -> Useful if players don't equip a resource pack (for some reason)
+    
+
+### /infuse:activate
+    -> /<u|use|a|activate> <primary|p|secondary|s>
+    -> Has multiple aliases, this is the recommended method to activate sparks with commandkeys
+    
+    -> EX.
+        - /a p
+        - /a secondary
+        - /u primary
+
+### /infuse:trust
+    -> /trust <add|remove|list|clear> [<player>]
+    -> add      - Adds a specified player into your trust list
+    -> remove   - Removes a specified player from your trust list
+    -> list     - Lists everyone inside your trust list
+    -> clear    - Clears your entire trust list
+    
+    -> Manages the people inside your trust list to be exempted from your effects.
+    -> There is a cooldown of 10 seconds (default) before the trust action is executed
+    -> The player is not added/removed from the trust list before the cooldown ends
+    
+    -> EX.
+        - /trust add stanczyk
+        - /trust list
+        - /trust clear
+
+### /infuse:swap
+    -> /<swap|swapeff|swapeffects|swapslots>
+
+    -> Swaps the effects between your primary and secondary slot.
+
+### --drain--
+    -> /ldrain
+    -> /rdrain
+    -> /pdrain
+    -> /sdrain
+    
+    -> ldrain and pdrain both drain the primary effect (left side)
+    -> rdrain and sdrain both drain the secondary effect (right side)
+    -> Drained effects appear inside your inventory if there is space present
+        - By default there are checks to ensure that there is inventory slots available
+        - However, avoid draining effects when your inventory is full/during combat/death to avoid bugs
+        
+### /infuse:conf
+    -> /conf <get|set> <key> [<key>] <value>
+    -> get - Gets the current value of the config
+    -> set - Sets the current value of the config
+    
+    -> Changes the configuration during runtime without reloading
+        - Some changes are not supported
+        - In that case it is necessary to reload the skript
+    
+    -> Some keys do not have have subkeys, so only specifying the value is enough
+    
+    -> EX.
+        - /conf get allow_same_effects
+        - /conf set trust_list_max 3
+        - /conf set fire trigger_hits 5
+
+### CONFIG
+    -> The configuration for the individual infuse effects can be found in options.sk
+    -> Configuration for certain parts of the skript can be modified at runtime using commands
+    -> Note that reloading skripts with only functions will not reload the actual function that is loaded
+       in memory, ie. reloading any skript inside \infuse\functions\ requires another reload in the skripts
+       that call it.
+    -> Recipes of the infuse effects can be edited in load.sk
+    -> The lore and title of the infuse effects as well as additional attributes/nbt you would like to append can be found in items.sk
+
+    -> Effects related to "enemies" may have discrepancies, for example "Propel all enemies upwards" might sometimes mean players or all entities
+       in general. Depending if the effect happens on damage or during a spark, it is possible to change the events when the effects trigger
+
+    -> trigger_hits is the amount of hits it will take to reach full charge:
+        - (No charge) 1 -> 2 -> 3 -> 4 -> 5 (Charged fully)
+        - This means there are 5 states and 4 hits required to reach full charge
+        - 5th hit is 5 -> 1
+        - 5 hits do not mean 5 to reach full charge
+
+
+
+                                            -> WARNING <-
+                                    DO NOT USE CUSTOM MODEL DATA FROM:
+                                          414001 to 414999
+
+    - The items use custom model data ONLY to identify the items used to allow different items to be used as a model
+    - Any other item with the same custom model data WILL give the effects if it is consumable
+    - The action can be changed from consuming to right clicking to allow other non-consumables to be used as infuse potions.
+
+### HEARTBEAT
+    -> The heartbeat/clock for the skript found in heartbeat.sk can technically be increased 
+       to 2 ticks to halve the load on the server, however that will introduce a few issues
+        - The swim-in-lava function of the skript will bug out, because the "swimming" animation requires
+          the player to be in the fallflying state. Without an elytra, the player will attempt to return
+          to normal walking every tick, which will cause the player to bug out heavily
+        
+        - The walk-on-powdered snow feature MAY break, this is due to the checks not updating fast enough
+          to catch the changes between when the player walks from normal ground to powdered snow.
+
+    
+### RECIPES
+    -> Recipes can be found inside rituals.sk (and not recipes.sk, they share the same function to retrieve the recipes)
+	   You can also view them in game through /recipes, watch out for dupes, I have had bad experience with skript's GUIs
+	   You can simply disable the GUI by removing recipes.sk if you don't think its necessary
+
+### WORLDGUARD (MAPREGION)
+    -> /mapregion is used because the only method exposed for skript to check if a location was in a region is to check just that
+       If you have radius based effects, its roughly 1.4k checks per player per effect per tick IF the radius is smaller
+       /mapregion fixes that by using skbee's own bounds by detecting the region border and making a bound for it (then calculating the intersections between the spherical radius and the bound)
+
+	-> To use /mapregion simply create a worldguard(or any other supported plugin) in your world, run /mapregion, then right click any block inside the region you just created
+	   The region will be automatically defined and all your effects will cease to work inside the region.
+
+### RITUALS
+    -> if you set the max amount of augments per effect to n
+	   there can only be n amounts of rituals active at once if none has been crafted yet
+	   if there is already 1 crafted and n-1 augmented effects remaining
+	   then only n-1 rituals are possible
+	   if there are already n rituals present and you try to craft more, the ritual doesnt happen, and you get a normal effect
+	   in the event that a ritual fails, its possible to start another ritual again
+

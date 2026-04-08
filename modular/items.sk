@@ -1,0 +1,240 @@
+function get_item(e: text, a: boolean, ei: boolean = false) :: item:
+    if {_e} is "emerald":
+        set {_n} to "<#0DFC00>Emerald Effect"
+        set {_color} to rgb(13, 252, 0)
+        set {_cmd} to 414001
+        set {_pt} to "<#09B000>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#0DFC00>💲 <#6D6D6D>Looting 5" to {_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>Permanent Hero of the village" to {_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>2.0x XP gain" to {_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>Consumables have a 50.0%% chance of not being consumed" to {_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>Max level enchanting without bookshelves" to {_s_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>Each hit steals XP from your enemy" to {_s_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>Receiving 10 hits lock the attacker's food and XP" to {_lore::*}
+        set {_st} to "<#09B000>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#0DFC00>💲 <#6D6D6D>Hero of the village 5.0" to {_s_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>4.0x XP gain" to {_s_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>Consumables have a 75.0%% chance not to be consumed" to {_s_lore::*}
+        add text component of "<#0DFC00>💲 <#6D6D6D>Share XP with nearby teammates (hit them)" to {_s_lore::*}
+
+    else if {_e} is "feather":
+        set {_n} to "<#BEA3CA>Feather Effect"
+        set {_color} to rgb(190, 163, 202)
+        set {_cmd} to 414002
+        set {_pt} to "<#84728C>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#BEA3CA>☁ <#6D6D6D>No Fall damage" to {_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Immune to kinetic energy" to {_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Windburst on all attacks" to {_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Falling from higher deals more damage" to {_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Windcharges have 2.0x velocity and 0.5x use speed" to {_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Receiving 10 hits spawns an orbiting wind charge(crouch to use)" to {_lore::*}
+        set {_st} to "<#84728C>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Launches the player upward" to {_s_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Falling from higher up deals 2.0 hearts on impact" to {_s_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Impact radius and bounce height scale with the distance fallen" to {_s_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Enemies hit by the shockwave are given slow falling" to {_s_lore::*}
+        add text component of "<#BEA3CA>☁ <#6D6D6D>Crouch to cancel the bounce" to {_s_lore::*}
+
+    else if {_e} is "fire":
+        set {_n} to "<#FC7803>Fire Effect"
+        set {_color} to rgb(252, 120, 3)
+        set {_cmd} to 414003
+        set {_pt} to "<#B05302>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#FC7803>🔥 <#6D6D6D>Permanent Fire Resistance" to {_lore::*}
+        add text component of "<#FC7803>🔥 <#6D6D6D>Propel yourself through lava" to {_lore::*}
+        add text component of "<#FC7803>🔥 <#6D6D6D>Lava breaks your fall" to {_lore::*}
+        # add text component of "<#FC7803>🔥 <#6D6D6D>Auto Smelting on all blocks" to {_lore::*}
+        add text component of "<#FC7803>🔥 <#6D6D6D>Snowballs turn into fireballs" to {_lore::*}
+        add text component of "<#FC7803>🔥 <#6D6D6D>5th hit sets enemies on fire" to {_lore::*}
+        add text component of "<#FC7803>🔥 <#6D6D6D>Flame on ranged attacks" to {_lore::*}
+        add text component of "<#FC7803>🔥 <#6D6D6D>Fire spreads to nearby enemies that touch each other" to {_lore::*}
+        add text component of "<#FC7803>🔥 <#6D6D6D>Extinguish nearby water sources when on fire" to {_lore::*}
+        set {_st} to "<#B05302>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛ:"
+        add text component of "<#FC7803>🔥 <#6D6D6D>Ignite all players before all launching them into the air" to {_s_lore::*}
+        add text component of "<#FC7803>🔥 <#6D6D6D>Extinguishes all nearby water sources and set flammable blocks on fire" to {_s_lore::*}
+
+    else if {_e} is "frost":
+        set {_n} to "<#7AE3FC>Frost Effect"
+        set {_color} to rgb(122, 227, 252)
+        set {_cmd} to 414004
+        set {_pt} to "<#559FB0>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#7AE3FC>❄ <#6D6D6D>10th hit freezes enemies and puts windcharges on cooldown" to {_lore::*}
+        add text component of "<#7AE3FC>❄ <#6D6D6D>Frosted enemies create ice trails and get Mining Fatigue" to {_lore::*}
+        add text component of "<#7AE3FC>❄ <#6D6D6D>1.5x speed and 30.0%% KB resistance on ice/snow" to {_lore::*}
+        # add text component of "<#7AE3FC>❄ <#6D6D6D>Freeze nearby water sources" to {_lore::*} too op ig
+        add text component of "<#7AE3FC>❄ <#6D6D6D>Cools down and solidifies lava" to {_lore::*}
+        add text component of "<#7AE3FC>❄ <#6D6D6D>Frost on ranged attacks" to {_lore::*}
+        set {_st} to "<#559FB0>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#7AE3FC>❄ <#6D6D6D>Apply frost and mining fatigue 2.0 on hit" to {_s_lore::*}
+        add text component of "<#7AE3FC>❄ <#6D6D6D>2.0x speed on ice/snow" to {_s_lore::*}
+
+    else if {_e} is "thunder":
+        set {_n} to "<#FCED00>Thunder Effect"
+        set {_color} to rgb(252, 237, 0)
+        set {_cmd} to 414005
+        set {_pt} to "<#B0A600>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#FCED00>⚡ <#6D6D6D>Smite players on every 10th hit (5th if raining)" to {_lore::*}
+        add text component of "<#FCED00>⚡ <#6D6D6D>Thunder chains to nearby enemies up to 10 times" to {_lore::*}
+        add text component of "<#FCED00>⚡ <#6D6D6D>Tridents smite enemies when thrown" to {_lore::*}
+        set {_st} to "<#B0A600>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#FCED00>⚡ <#6D6D6D>Smite all players up to 5 times" to {_s_lore::*}
+        add text component of "<#FCED00>⚡ <#6D6D6D>Radius increases the more enemies are inside" to {_s_lore::*}
+
+    else if {_e} is "haste":
+        set {_n} to "<#B96C00>Haste Effect"
+        set {_color} to rgb(185, 108, 0)
+        set {_cmd} to 414006
+        set {_pt} to "<#804B00>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#B96C00>⛏ <#6D6D6D>Break blocks faster" to {_lore::*}
+        add text component of "<#B96C00>⛏ <#6D6D6D>Tools have Fortune 5 and Unbreaking 10" to {_lore::*}
+        #add text component of "<#B96C00>⛏ <#6D6D6D>Crouch to Vein mine ores" to {_lore::*}
+        add text component of "<#B96C00>⛏ <#6D6D6D>Enemies have reduced I-Frames" to {_lore::*}
+        add text component of "<#B96C00>⛏ <#6D6D6D>Each hit increases attack speed" to {_lore::*}
+        add text component of "<#B96C00>⛏ <#6D6D6D>Attack speed decays every 1.0s" to {_lore::*}
+        set {_st} to "<#804B00>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#B96C00>⛏ <#6D6D6D>Insta mine all blocks" to {_s_lore::*}
+
+    else if {_e} is "heart":
+        set {_n} to "<#FC0046>Heart Effect"
+        set {_color} to rgb(252, 0, 70)
+        set {_cmd} to 414007
+        set {_pt} to "<#B00030>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#FC0046>❤ <#6D6D6D>+5 Hearts" to {_lore::*}
+        add text component of "<#FC0046>❤ <#6D6D6D>Food items give 2.0 absorption hearts" to {_lore::*}
+        add text component of "<#FC0046>❤ <#6D6D6D>Egaps give 10.0 absorption hearts" to {_lore::*}
+        add text component of "<#FC0046>❤ <#6D6D6D>Hit teammates to give them your extra HP as absorption hearts" to {_lore::*}
+        set {_st} to "<#B00030>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#FC0046>❤ <#6D6D6D>+10.0 hearts" to {_s_lore::*}
+        add text component of "<#FC0046>❤ <#6D6D6D>Heals you the amount of damage you dealt in the past 30.0s" to {_s_lore::*}
+
+    else if {_e} is "invisibility":
+        set {_n} to "<#7E00FC>Invisibility Effect"
+        set {_color} to rgb(126, 0, 252)
+        set {_cmd} to 414008
+        set {_pt} to "<#5800B0>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#7E00FC>👁 <#6D6D6D>Invisibility" to {_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>No entity collision" to {_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>Mobs don't target you" to {_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>Immune to wither and darkness" to {_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>Obscures kill credit" to {_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>Blindness on ranged attacks" to {_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>10th hit gives blindness" to {_lore::*}
+        set {_st} to "<#5800B0>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#7E00FC>👁 <#6D6D6D>Creates a smoke screen" to {_s_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>Applies wither and blindness to enemies" to {_s_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>Gives true invis to you and people in your trust list" to {_s_lore::*}
+        add text component of "<#7E00FC>👁 <#6D6D6D>Smoke radius increases with more teammates inside" to {_s_lore::*}
+
+    else if {_e} is "ocean":
+        set {_n} to "<#005AFC>Ocean Effect"
+        set {_color} to rgb(0, 90, 252)
+        set {_cmd} to 414009
+        set {_pt} to "<#003EB0>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#005AFC>🌊 <#6D6D6D>Dolphin's Grace and Waterbreathing" to {_lore::*}
+        add text component of "<#005AFC>🌊 <#6D6D6D>Drown nearby enemies" to {_lore::*}
+        add text component of "<#005AFC>🌊 <#6D6D6D>Standing in rain increases drowning damage" to {_lore::*}
+        add text component of "<#005AFC>🌊 <#6D6D6D>Nearby teammates get water breathing" to {_lore::*}
+        add text component of "<#005AFC>🌊 <#6D6D6D>Tridents have loyalty 5 and pull enemies" to {_lore::*}
+        set {_st} to "<#003EB0>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#005AFC>🌊 <#6D6D6D>Creates a whirlpool that pulls in nearby enemies" to {_s_lore::*}
+
+    else if {_e} is "regeneration":
+        set {_n} to "<#FC00DD>Regeneration Effect"
+        set {_color} to rgb(252, 0, 221)
+        set {_cmd} to 414010
+        set {_pt} to "<#B0009A>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#FC00DD>+ <#6D6D6D>No hunger loss" to {_lore::*}
+        add text component of "<#FC00DD>+ <#6D6D6D>Permanent Regeneration" to {_lore::*}
+        add text component of "<#FC00DD>+ <#6D6D6D>Every hit gives Regeneration 2 for 3.0s" to {_lore::*}
+        add text component of "<#FC00DD>+ <#6D6D6D>All food gives +3.0 saturation bars" to {_lore::*}
+        add text component of "<#FC00DD>+ <#6D6D6D>Eat anytime" to {_lore::*}
+        add text component of "<#FC00DD>+ <#6D6D6D>10th hit takes away 1.0 hunger bar from your target" to {_lore::*}
+        set {_st} to "<#B0009A>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛ:"
+        add text component of "<#FC00DD>+ <#6D6D6D>Damage dealth heals you and nearby teammates" to {_s_lore::*}
+
+    else if {_e} is "speed":
+        set {_n} to "<#d1a44b>Speed Effect"
+        set {_color} to rgb(209, 164, 75)
+        set {_cmd} to 414011
+        set {_pt} to "<#b5883a>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#d1a44b>⏩ <#6D6D6D>+0.2x movement speed" to {_lore::*}
+        add text component of "<#d1a44b>⏩ <#6D6D6D>Each hit increases speed level" to {_lore::*}
+        add text component of "<#d1a44b>⏩ <#6D6D6D>Getting hit lowers speed level" to {_lore::*}
+        # add text component of "<#d1a44b>⏩ <#6D6D6D>Bows are full auto" to {_lore::*}
+        add text component of "<#d1a44b>⏩ <#6D6D6D>Each hit increases speed level" to {_lore::*}
+        add text component of "<#d1a44b>⏩ <#6D6D6D>Improved projectile speed, accuracy and range" to {_lore::*}
+        set {_st} to "<#b5883a>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#d1a44b>⏩ <#6D6D6D>Dash forward dealing damage" to {_s_lore::*}
+
+    else if {_e} is "strength":
+        set {_n} to "<#9E2020>Strength Effect"
+        set {_color} to rgb(158, 32, 32)
+        set {_cmd} to 414012
+        set {_pt} to "<#6F1616>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#9E2020>🛡 <#6D6D6D>Shield disables are 2.0x longer" to {_lore::*}
+        add text component of "<#9E2020>🛡 <#6D6D6D>Damages shields by 20 when disabling" to {_lore::*}
+        add text component of "<#9E2020>🛡 <#6D6D6D>0.5x damage penetrates when disabling shields" to {_lore::*}
+        add text component of "<#9E2020>🛡 <#6D6D6D>2.0x damage to all mobs" to {_lore::*}
+        add text component of "<#9E2020>🛡 <#6D6D6D>+0.3 attack damage for every 1HP Lost" to {_lore::*}
+        add text component of "<#9E2020>🛡 <#6D6D6D>Piercing on ranged attacks" to {_lore::*}
+        set {_st} to "<#6F1616>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#9E2020>🛡 <#6D6D6D>All attacks are critical" to {_s_lore::*}
+    
+    set {_i} to potion named text component of {_n} with item flag hide additional tooltip
+    
+    if {_a} is true:
+        set custom model data of {_i} to {_cmd} + 100 
+    else:
+        set custom model data of {_i} to {_cmd}
+
+    apply potion contents to {_i}:
+        custom_color: {_color}
+
+    set glint override of {_i} to true
+    add nbt from "{""minecraft:damage_resistant"":{types:""#minecraft:is_fire""}}" to nbt of {_i}
+    set line 1 of lore of {_i} to ""
+    set line 2 of lore of {_i} to text component of {_pt}
+    set {_c} to 3
+    loop {_lore::*}:
+        set line {_c} of lore of {_i} to loop-value
+        add 1 to {_c}
+    set line {_c} of lore of {_i} to ""
+    add 1 to {_c}
+    set line {_c} of lore of {_i} to text component of {_st}
+    add 1 to {_c}
+    loop {_s_lore::*}:
+        set line {_c} of lore of {_i} to loop-value
+        add 1 to {_c}
+    
+    set line {_c}+1 of lore of {_i} to "§8ᴅᴜʀᴀᴛɪᴏɴ:§7 %{-infuse::config::%{_e}%::spark}/20%s"
+        
+    if {_a} is true:
+        set line {_c}+2 of lore of {_i} to "§8ᴄᴏᴏʟᴅᴏᴡɴ:§7 %{-infuse::config::%{_e}%::cd}/40%s"
+    else:
+        set line {_c}+2 of lore of {_i} to "§8ᴄᴏᴏʟᴅᴏᴡɴ:§7 %{-infuse::config::%{_e}%::cd}/20%s"
+
+    if {_ei} is true:
+        set line {_c}+4 of lore of {_i} to "§7ᴄʀᴀꜰᴛᴇᴅ ᴀᴜɢᴍᴇɴᴛꜱ: §f%max({-infuse::config::%{_e}%::augment_limit}, ({infuse::ritual::%{_e}%::crafted} ? 0))%" if {-infuse::config::%{_e}%::augment_limit} > 0 else "§cᴀᴜɢᴍᴇɴᴛꜱ ᴅɪꜱᴀʙʟᴇᴅ"
+        set line {_c}+5 of lore of {_i} to "§7ᴛᴏᴛᴀʟ ᴄʀᴀꜰᴛᴇᴅ: §f%({infuse::ritual::%{_e}%::crafted} ? 0)%"
+    else:
+        if {-infuse::config::lock_effects} ? false is false:
+            set line {_c}+4 of lore of {_i} to "§7ᴅʀɪɴᴋ ᴀꜱ ɴᴏʀᴍᴀʟ ᴛᴏ ᴇǫᴜɪᴘ ᴀꜱ ᴀ ᴘʀɪᴍᴀʀʏ"
+            set line {_c}+5 of lore of {_i} to "§7ᴄʀᴏᴜᴄʜ ᴀɴᴅ ᴅʀɪɴᴋ ᴛᴏ ᴇǫᴜɪᴘ ᴀꜱ ꜱᴇᴄᴏɴᴅᴀʀʏ"
+        else:
+            if {-infuse::config::secondary_effects::*} does not contain {_e}:
+                set line {_c}+4 of lore of {_i} to "§7ᴛʜɪꜱ ᴇꜰꜰᴇᴄᴛ ɪꜱ ᴀ ᴘʀɪᴍᴀʀʏ"
+                if {-infuse::config::primary_effects::*} does not contain {_e}:
+                    set line {_c}+4 of lore of {_i} to "§7ᴛʜɪꜱ ᴇꜰꜰᴇᴄᴛ ᴄᴀɴ ʙᴇ ᴇǫᴜɪᴘᴘᴇᴅ ᴀꜱ ʙᴏᴛʜ ᴀ ᴘʀɪᴍᴀʀʏ ᴀɴᴅ ꜱᴇᴄᴏɴᴅᴀʀʏ"
+                    set line {_c}+5 of lore of {_i} to "§7ᴅʀɪɴᴋ ᴀꜱ ɴᴏʀᴍᴀʟ ᴛᴏ ᴇǫᴜɪᴘ ᴀꜱ ᴀ ᴘʀɪᴍᴀʀʏ"
+                    set line {_c}+6 of lore of {_i} to "§7ᴄʀᴏᴜᴄʜ ᴀɴᴅ ᴅʀɪɴᴋ ᴛᴏ ᴇǫᴜɪᴘ ᴀꜱ ꜱᴇᴄᴏɴᴅᴀʀʏ"
+            else:
+                set line {_c}+4 of lore of {_i} to "§7ᴛʜɪꜱ ᴇꜰꜰᴇᴄᴛ ɪꜱ ᴀ ꜱᴇᴄᴏɴᴅᴀʀʏ"
+
+    return {_i}
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

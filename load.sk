@@ -1,0 +1,202 @@
+
+#  ███       ███       ███          ████                         █████          
+# ▒▒▒███    ▒▒▒███    ▒▒▒███       ▒▒███                        ▒▒███           
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███      ▒███   ██████   ██████    ███████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ▒███  ███▒▒███ ▒▒▒▒▒███  ███▒▒███           
+#      ███▒      ███▒      ███▒     ▒███ ▒███ ▒███  ███████ ▒███ ▒███           
+#    ███▒      ███▒      ███▒       ▒███ ▒███ ▒███ ███▒▒███ ▒███ ▒███           
+#  ███▒      ███▒      ███▒         █████▒▒██████ ▒▒████████▒▒████████ █████████
+# ▒▒▒       ▒▒▒       ▒▒▒          ▒▒▒▒▒  ▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒ ▒▒▒▒▒▒▒▒▒ 
+                                                                              
+on load:
+    # if {-infuse::config::skip_initialization} is true:
+    #     stop
+
+    clear {infuse::effects::*}
+    clear {infuse::active::*}
+
+    clear {-infuse::flags::*}
+    clear {-infuse::icon::*}
+    clear {-infuse::bar::*}
+
+    add all mobs to team named "invis-effect"
+    set team option collision rule of team named "invis-effect" to never
+    set allow friendly fire team state of team named "invis-effect" to true
+    set can see friendly invisibles team state of team named "invis-effect" to false
+
+    add "earth", "emerald", "ender", "feather", "fire" and "frost" to {infuse::effects::*}
+    add "haste", "heart", "invisibility", "ocean" and "regeneration" to {infuse::effects::*}
+    add "speed", "strength" and "thunder" to {infuse::effects::*}
+
+    set {_n::*} to {infuse::effects::*}
+    set {_c} to htd("E000")
+    set {_b} to htd("E484")
+    loop {_n::*}:
+        set {_v} to loop-value
+        if {_v} is "earth" or "ender":
+            loop 21 times:
+                set {_i} to loop-iteration-2
+                set {-infuse::icon::%{_v}%::augmented-normal::%{_i}%} to character from code point ({_c} + {_i}-1) # sk:ne
+                set {-infuse::icon::%{_v}%::augmented-spark::%{_i}%} to character from code point ({_c} + 21 + {_i}-1) # sk:ne
+            add 42 to {_c} # sk:ne
+        else:
+            loop 21 times:
+                set {_i} to loop-iteration-2
+                set {-infuse::icon::%{_v}%::default-normal::%{_i}%} to character from code point ({_c} + {_i}-1) # sk:ne
+                set {-infuse::icon::%{_v}%::augmented-normal::%{_i}%} to character from code point ({_c} + 21 + {_i}-1) # sk:ne
+                set {-infuse::icon::%{_v}%::augmented-spark::%{_i}%} to character from code point ({_c} + 42 + {_i}-1) # sk:ne
+                set {-infuse::icon::%{_v}%::default-spark::%{_i}%} to character from code point ({_c} + 63 + {_i}-1) # sk:ne
+            add 84 to {_c} # sk:ne
+        loop 14 times:
+            set {_i} to loop-iteration-2
+            if {_i} <= 10:
+                set {-infuse::bar::%{_v}%::recharge::%{_i}%} to character from code point ({_b} + {_i}-1) # sk:ne
+            else:
+                set {-infuse::bar::%{_v}%::charged::%({_i} - 10)%} to character from code point ({_b} + {_i}-1) # sk:ne
+        add 14 to {_b}
+
+    set {-infuse::flags::lava_replace::*} to magma block, basalt, obsidian and netherrack
+    set {-infuse::flags::frost_replace::*} to ice, packed ice, blue ice and snow block
+    set {-infuse::flags::axes::*} to wooden axe, stone axe, iron axe, golden axe, diamond axe, netherite axe and "copper axe" parsed as item type
+
+    set {-infuse::flags::looting_enchanted::*} to wooden sword, stone sword, iron sword, golden sword, diamond sword, netherite sword, "copper sword" parsed as item type and {-infuse::flags::axes::*}
+    set {-infuse::flags::fortune_enchanted::*} to wooden pickaxe, stone pickaxe, iron pickaxe, golden pickaxe, diamond pickaxe, netherite pickaxe, wooden shovel, stone shovel, iron shovel, golden shovel, diamond shovel, netherite shovel, wooden hoe, stone hoe, iron hoe, golden hoe, diamond hoe, netherite hoe, "copper pickaxe" parsed as item type, "copper shovel" parsed as item type and "copper hoe" parsed as item type 
+    set {-infuse::flags::tools::*} to {-infuse::flags::looting_enchanted::*} and {-infuse::flags::fortune_enchanted::*}
+
+    add bread, cooked beef, cooked chicken, cooked mutton, cooked porkchop and cooked rabbit to {-infuse::flags::consumable_items::*}
+    add golden carrot, golden apple, enchanted golden apple, cookie, melon slice, pumpkin pie, beetroot soup and mushroom stew to {-infuse::flags::consumable_items::*}
+    add rabbit stew, suspicious stew, baked potato, carrot, potato, apple, dried kelp, chorus fruit, sweet berries and glow berries to {-infuse::flags::consumable_items::*}
+    add honey bottle, cod, salmon, cooked cod, cooked salmon, tropical fish, pufferfish, beef, porkchop, mutton and chicken to {-infuse::flags::consumable_items::*}
+    add rabbit, poisonous potato, spider eye and rotten flesh to {-infuse::flags::consumable_items::*}
+
+    set {-infuse::flags::consumable_filtered::*} to all potions and {-infuse::flags::consumable_items::*}
+
+    set {-infuse::flags::color::emerald} to "#0DFC00"
+    set {-infuse::flags::color::feather} to "#BEA3CA"
+    set {-infuse::flags::color::fire} to "#FC7803"
+    set {-infuse::flags::color::frost} to "#7AE3FC"
+    set {-infuse::flags::color::thunder} to "#FCED00"
+    set {-infuse::flags::color::haste} to "#B96C00"
+    set {-infuse::flags::color::heart} to "#FC0046"
+    set {-infuse::flags::color::invisibility} to "#7E00FC"
+    set {-infuse::flags::color::ocean} to "#005AFC"
+    set {-infuse::flags::color::regeneration} to "#FC00DD"
+    set {-infuse::flags::color::speed} to "#D1A44B"
+    set {-infuse::flags::color::strength} to "#9E2020"
+
+    # add pale oak log, stripped pale oak log, pale oak wood and stripped pale oak wood to {-infuse::flags::flammable_blocks::*}
+    # add pale oak planks, pale oak slab, pale oak stairs, pale oak fence and pale oak fence gate to {-infuse::flags::flammable_blocks::*}
+    # add pale oak door, pale oak trapdoor, pale oak button and pale oak pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add pale oak sign, pale oak wall sign, pale oak hanging sign and pale oak wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add pale oak leaves, creaking heart, open eyeblossom, closed eyeblossom and resin block to {-infuse::flags::flammable_blocks::*}
+    # add cherry log, stripped cherry log, cherry wood, stripped cherry wood and cherry leaves to {-infuse::flags::flammable_blocks::*}
+    # add cherry planks, cherry slab, cherry stairs, cherry fence and cherry fence gate to {-infuse::flags::flammable_blocks::*}
+    # add cherry door, cherry trapdoor, cherry button and cherry pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add cherry sign, cherry wall sign, cherry hanging sign and cherry wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add bamboo block, stripped bamboo block, bamboo planks and bamboo mosaic to {-infuse::flags::flammable_blocks::*}
+    # add bamboo slab, bamboo mosaic slab, bamboo stairs and bamboo mosaic stairs to {-infuse::flags::flammable_blocks::*}
+    # add bamboo fence, bamboo fence gate, bamboo door and bamboo trapdoor to {-infuse::flags::flammable_blocks::*}
+    # add bamboo button, bamboo pressure plate, bamboo sign and bamboo wall sign to {-infuse::flags::flammable_blocks::*}
+    # add bamboo hanging sign and bamboo wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add oak log, stripped oak log, oak wood, stripped oak wood and oak leaves to {-infuse::flags::flammable_blocks::*}
+    # add oak planks, oak slab, oak stairs, oak fence and oak fence gate to {-infuse::flags::flammable_blocks::*}
+    # add oak door, oak trapdoor, oak button and oak pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add oak sign, oak wall sign, oak hanging sign and oak wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add spruce log, stripped spruce log, spruce wood, stripped spruce wood and spruce leaves to {-infuse::flags::flammable_blocks::*}
+    # add spruce planks, spruce slab, spruce stairs, spruce fence and spruce fence gate to {-infuse::flags::flammable_blocks::*}
+    # add spruce door, spruce trapdoor, spruce button and spruce pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add spruce sign, spruce wall sign, spruce hanging sign and spruce wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add birch log, stripped birch log, birch wood, stripped birch wood and birch leaves to {-infuse::flags::flammable_blocks::*}
+    # add birch planks, birch slab, birch stairs, birch fence and birch fence gate to {-infuse::flags::flammable_blocks::*}
+    # add birch door, birch trapdoor, birch button and birch pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add birch sign, birch wall sign, birch hanging sign and birch wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add jungle log, stripped jungle log, jungle wood, stripped jungle wood and jungle leaves to {-infuse::flags::flammable_blocks::*}
+    # add jungle planks, jungle slab, jungle stairs, jungle fence and jungle fence gate to {-infuse::flags::flammable_blocks::*}
+    # add jungle door, jungle trapdoor, jungle button and jungle pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add jungle sign, jungle wall sign, jungle hanging sign and jungle wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add acacia log, stripped acacia log, acacia wood, stripped acacia wood and acacia leaves to {-infuse::flags::flammable_blocks::*}
+    # add acacia planks, acacia slab, acacia stairs, acacia fence and acacia fence gate to {-infuse::flags::flammable_blocks::*}
+    # add acacia door, acacia trapdoor, acacia button and acacia pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add acacia sign, acacia wall sign, acacia hanging sign and acacia wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add dark oak log, stripped dark oak log, dark oak wood, stripped dark oak wood and dark oak leaves to {-infuse::flags::flammable_blocks::*}
+    # add dark oak planks, dark oak slab, dark oak stairs, dark oak fence and dark oak fence gate to {-infuse::flags::flammable_blocks::*}
+    # add dark oak door, dark oak trapdoor, dark oak button and dark oak pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add dark oak sign, dark oak wall sign, dark oak hanging sign and dark oak wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add mangrove log, stripped mangrove log, mangrove wood and stripped mangrove wood to {-infuse::flags::flammable_blocks::*}
+    # add mangrove leaves, mangrove roots and muddy mangrove roots to {-infuse::flags::flammable_blocks::*}
+    # add mangrove planks, mangrove slab, mangrove stairs, mangrove fence and mangrove fence gate to {-infuse::flags::flammable_blocks::*}
+    # add mangrove door, mangrove trapdoor, mangrove button and mangrove pressure plate to {-infuse::flags::flammable_blocks::*}
+    # add mangrove sign, mangrove wall sign, mangrove hanging sign and mangrove wall hanging sign to {-infuse::flags::flammable_blocks::*}
+    # add white wool, orange wool, magenta wool, light blue wool, yellow wool and lime wool to {-infuse::flags::flammable_blocks::*}
+    # add pink wool, gray wool, light gray wool, cyan wool, purple wool and blue wool to {-infuse::flags::flammable_blocks::*}
+    # add brown wool, green wool, red wool and black wool to {-infuse::flags::flammable_blocks::*}
+    # add white carpet, orange carpet, magenta carpet, light blue carpet, yellow carpet and lime carpet to {-infuse::flags::flammable_blocks::*}
+    # add pink carpet, gray carpet, light gray carpet, cyan carpet, purple carpet and blue carpet to {-infuse::flags::flammable_blocks::*}
+    # add brown carpet, green carpet, red carpet and black carpet to {-infuse::flags::flammable_blocks::*}
+    # add white banner, orange banner, magenta banner, light blue banner, yellow banner and lime banner to {-infuse::flags::flammable_blocks::*}
+    # add pink banner, gray banner, light gray banner, cyan banner, purple banner and blue banner to {-infuse::flags::flammable_blocks::*}
+    # add brown banner, green banner, red banner and black banner to {-infuse::flags::flammable_blocks::*}
+    # add white wall banner, orange wall banner, magenta wall banner and light blue wall banner to {-infuse::flags::flammable_blocks::*}
+    # add yellow wall banner, lime wall banner, pink wall banner and gray wall banner to {-infuse::flags::flammable_blocks::*}
+    # add light gray wall banner, cyan wall banner, purple wall banner and blue wall banner to {-infuse::flags::flammable_blocks::*}
+    # add brown wall banner, green wall banner, red wall banner and black wall banner to {-infuse::flags::flammable_blocks::*}
+    # add dandelion, poppy, blue orchid, allium and azure bluet to {-infuse::flags::flammable_blocks::*}
+    # add red tulip, orange tulip, white tulip and pink tulip to {-infuse::flags::flammable_blocks::*}
+    # add oxeye daisy, cornflower, lily of the valley and wither rose to {-infuse::flags::flammable_blocks::*}
+    # add sunflower, lilac, rose bush, peony, torchflower, pitcher plant and pink petals to {-infuse::flags::flammable_blocks::*}
+    # add short grass, tall grass, fern, large fern and dead bush to {-infuse::flags::flammable_blocks::*}
+    # add sugar cane, bamboo, kelp and dried kelp block to {-infuse::flags::flammable_blocks::*}
+    # add moss carpet, moss block, azalea, flowering azalea, azalea leaves and flowering azalea leaves to {-infuse::flags::flammable_blocks::*}
+    # add vine, weeping vines, twisting vines, glow berries and cave vines to {-infuse::flags::flammable_blocks::*}
+    # add big dripleaf, big dripleaf stem and small dripleaf to {-infuse::flags::flammable_blocks::*}
+    # add spore blossom and hanging roots to {-infuse::flags::flammable_blocks::*}
+    # add bookshelf, chiseled bookshelf, chest, trapped chest and barrel to {-infuse::flags::flammable_blocks::*}
+    # add lectern, crafting table, fletching table and cartography table to {-infuse::flags::flammable_blocks::*}
+    # add loom, smithing table, composter, beehive and bee nest to {-infuse::flags::flammable_blocks::*}
+    # add note block and jukebox to {-infuse::flags::flammable_blocks::*}
+    # add hay block, target block, scaffolding and ladder to {-infuse::flags::flammable_blocks::*}
+    # add painting, item frame and glow item frame to {-infuse::flags::flammable_blocks::*}
+    # add torch, soul torch and redstone torch to {-infuse::flags::flammable_blocks::*}
+    # add campfire and soul campfire to {-infuse::flags::flammable_blocks::*}
+
+# on load:
+#     if {-infuse::config::skip_recipes} is true:
+#         stop
+        
+#     set {_effects::*} to "emerald", "feather", "fire", "frost", "haste", "heart", "invis", "ocean", "regen", "speed", "strength", and "thunder"
+    
+#     loop {_effects::*}:
+#         remove recipe "effect_%loop-value%"
+
+#     set {_i::emerald::*}  to wild armor trim smithing template, sniffer egg, wild armor trim smithing template, ominous bottle, emerald block, ominous bottle, ender chest, enchanting table and ender chest
+#     set {_i::feather::*}  to breeze rod, phantom membrane, breeze rod, feather, heavy core, feather, breeze rod, phantom membrane and breeze rod
+#     set {_i::fire::*}     to netherite upgrade smithing template, respawn anchor, netherite upgrade smithing template, netherite ingot, music disc pigstep, netherite ingot, netherite upgrade smithing template, respawn anchor and netherite upgrade smithing template
+#     set {_i::frost::*}    to flow armor trim smithing template, verdant froglight, flow armor trim smithing template, goat horn, music disc creator, goat horn, flow armor trim smithing template, verdant froglight and flow armor trim smithing template
+#     set {_i::haste::*}    to diamond block, beacon, diamond block, gold block, deepslate emerald ore, gold block, diamond block, netherite pickaxe and diamond block
+#     set {_i::heart::*}    to potion, totem of undying, potion, enchanted golden apple, beetroot, enchanted golden apple, potion, totem of undying and potion
+#     set {_i::invis::*}    to ender eye, music disc 5, ender eye, silence armor trim smithing template, trial key, silence armor trim smithing template, ender eye, recovery compass and ender eye
+#     set {_i::ocean::*}    to tide armor trim smithing template, heart of the sea, tide armor trim smithing template, trident, conduit, trident, tide armor trim smithing template, heart of the sea and tide armor trim smithing template
+#     set {_i::regen::*}    to end crystal, honey block, end crystal, verdant froglight, axolotl bucket, verdant froglight, end crystal, music disc creator music box and end crystal
+#     set {_i::speed::*}    to rabbit foot, saddle, rabbit foot, dune armor trim smithing template, diamond horse armor, eye armor trim smithing template, rabbit foot, netherite boots and rabbit foot
+#     set {_i::strength::*} to player head, rib armor trim smithing template, player head, netherite sword, wither rose, netherite axe, player head, rib armor trim smithing template and player head
+#     set {_i::thunder::*}  to bolt armor trim smithing template, lodestone, bolt armor trim smithing template, trident, creeper head, trident, bolt armor trim smithing template, lodestone and bolt armor trim smithing template
+
+#     loop {_effects::*}:
+#         set {_name} to loop-value
+#         if {_name} is "invis":
+#             set {_item} to get_item("invisibility", false)
+#         else if {_name} is "regen":
+#             set {_item} to get_item("regeneration", false)
+#         else:
+#             set {_item} to get_item({_name}, false)
+            
+#         register new shaped recipe for {_item} using {_i::%{_name}%::*} with id "effect_%{_name}%"
+
+
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

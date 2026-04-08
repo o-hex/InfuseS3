@@ -1,0 +1,451 @@
+#  ███       ███       ███          █████                                    █████    █████                         █████   
+# ▒▒▒███    ▒▒▒███    ▒▒▒███       ▒▒███                                    ▒▒███    ▒▒███                         ▒▒███    
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███      ▒███████    ██████   ██████   ████████  ███████   ▒███████   ██████   ██████   ███████  
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ▒███▒▒███  ███▒▒███ ▒▒▒▒▒███ ▒▒███▒▒███▒▒▒███▒    ▒███▒▒███ ███▒▒███ ▒▒▒▒▒███ ▒▒▒███▒   
+#      ███▒      ███▒      ███▒     ▒███ ▒███ ▒███████   ███████  ▒███ ▒▒▒   ▒███     ▒███ ▒███▒███████   ███████   ▒███    
+#    ███▒      ███▒      ███▒       ▒███ ▒███ ▒███▒▒▒   ███▒▒███  ▒███       ▒███ ███ ▒███ ▒███▒███▒▒▒   ███▒▒███   ▒███ ███
+#  ███▒      ███▒      ███▒         ████ █████▒▒██████ ▒▒████████ █████      ▒▒█████  ████████ ▒▒██████ ▒▒████████  ▒▒█████ 
+# ▒▒▒       ▒▒▒       ▒▒▒          ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒ ▒▒▒▒▒        ▒▒▒▒▒  ▒▒▒▒▒▒▒▒   ▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒    ▒▒▒▒▒  
+
+every 1 tick:
+    # set {_ms_start} to (unix timestamp of now) * 1000
+    loop all players:
+        set {_p} to loop-player
+        set {_u} to uuid of loop-player
+        delete {_h::*}
+        delete {_r::*}
+        
+        loop "primary" and "secondary":
+            set {_slot} to loop-value-2
+            set {_e} to {infuse::stats::%{_u}%::%{_slot}%}
+            if {_e} is not set:
+                continue
+
+            set {_s} to {infuse::active::%{_u}%::%{_e}%::s} ? 0
+            set {_c} to {infuse::active::%{_u}%::%{_e}%::c} ? 0
+            
+            if {_r::%{_e}%} is not set:
+                set {_r::%{_e}%} to true
+                if {_s} > 0:
+                    remove 1 from {infuse::active::%{_u}%::%{_e}%::s}
+                    spark_end({_p}, {_e}) if {infuse::active::%{_u}%::%{_e}%::s} <= 0
+                else if {_c} > 0:
+                    remove 1 from {infuse::active::%{_u}%::%{_e}%::c}
+                    cooldown_end({_p}, {_e}) if {infuse::active::%{_u}%::%{_e}%::c} <= 0
+
+            set {_s} to {infuse::active::%{_u}%::%{_e}%::s}
+            set {_c} to {infuse::active::%{_u}%::%{_e}%::c}
+
+            if {infuse::disabled::%{_u}%} is not set:
+                if {infuse::stats::%{_u}%::display_icon} ? true is true:
+                    set {_a} to {infuse::stats::%{_u}%::%{_slot}%::a}
+                    set {_pre} to "augmented" if ({_a} is true) else "default"
+
+                    if {_s} > 0:
+                        set {_max} to {infuse::active::%{_u}%::%{_e}%::s_m}
+                        set {_f} to clamp(round((1 - ({_s} / {_max})) * 20) + 1, 1, 21)
+                        set {_icon} to {-infuse::icon::%{_e}%::%{_pre}%-spark::%{_f}%}
+                    else if {_c} > 0:
+                        set {_max} to {infuse::active::%{_u}%::%{_e}%::c_m}
+                        set {_f} to clamp(round(({_c} / {_max}) * 20) + 1, 1, 21)
+                        set {_icon} to {-infuse::icon::%{_e}%::%{_pre}%-normal::%{_f}%}
+                    else:
+                        set {_icon} to {-infuse::icon::%{_e}%::%{_pre}%-normal::1}
+
+                    set {_needed} to {-infuse::config::%{_e}%::trigger_hits} ? 10
+                    set {_val} to 0
+                    if {_e} is "haste":
+                        set {_val} to {-infuse::transient::%{_u}%::atkspd_stack}*10 ? 0
+                    else if {_e} is "speed":
+                        set {_val} to {-infuse::transient::%{_u}%::speed_stack}*(10/{-infuse::config::speed::stack_cap}) ? 0
+
+                    else:
+                        if {_e} is "thunder":
+                            if weather in world of {_p} is rain:
+                                set {_needed} to {_needed}/2
+                        if {_e} is "feather" or "emerald":
+                            set {_val} to {-infuse::transient::%{_u}%::hits_from_total}
+                        else:
+                            set {_val} to {-infuse::transient::%{_u}%::hits} ? 0
+
+                        set {_val} to mod({_val}, {_needed})
+                        if {_val} is 0:
+                            if {-infuse::transient::%{_u}%::hits} > 0:
+                                set {_val} to {_needed}
+
+                    if {_val} <= 0:
+                        set {_bar} to {-infuse::bar::%{_e}%::recharge::1}
+                    else if {_val} >= {_needed}:
+                        set {_frame} to mod(floor(unix timestamp of now * {-infuse::config::charged_refresh_speed}), 4) + 1
+                        set {_bar} to {-infuse::bar::%{_e}%::charged::%{_frame}%}
+                    else:
+                        set {_bar_f} to floor((({_val} - 1) / ({_needed} - 1)) * 9) + 1
+                        set {_bar_f} to min(9, max(1, {_bar_f}))
+                        set {_bar} to {-infuse::bar::%{_e}%::recharge::%{_bar_f}%}
+
+                    if {_s} + {_c} > 0:
+                        set {_ticks} to {_s} if {_s} > 0 else {_c}
+                        set {_secs} to floor({_ticks} / 20)
+                        set {_mins} to floor({_secs} / 60)
+                        set {_secs} to mod({_secs}, 60)
+                        set {_secs_formatted} to "0%{_secs}%" if {_secs} < 10 else "%{_secs}%"
+
+                        if {_s} > 0:
+                            set {_timer} to "<#F8D12C>%{_mins}%:%{_secs_formatted}%<#FFFFFF>"
+                        else:
+                            set {_timer} to "<#FF4545>%{_mins}%:%{_secs_formatted}%<#FFFFFF>"
+                    else:
+                        set {_timer} to "     " # jank ass fix
+
+                    if {_slot} is "primary":
+                        add "%{_timer}%  %{_icon}%%{_bar}%" to {_h::*}
+                    else:
+                        add "%{_bar}%%{_icon}%  %{_timer}%" to {_h::*}
+
+                else:
+                    set {_color} to {-infuse::flags::color::%{_e}%} ? "#FFFFFF"
+
+                    set {_raw} to {_s} if {_s} > 0 else {_c}
+                    set {_m_time} to floor({_raw} / 1200)
+                    set {_s_time} to mod(floor({_raw} / 20), 60)
+                    set {_ms_val} to mod({_raw}, 20) * 5
+                    set {_s_p} to "0%{_s_time}%" if {_s_time} < 10 else "%{_s_time}%"
+                    set {_ms_p} to "0%{_ms_val}%" if {_ms_val} < 10 else "%{_ms_val}%"
+                    set {_display_time} to "%{_m_time}%:%{_s_p}%:%{_ms_p}%"
+                    if {_s} > 0:
+                        add "<#F8D12C>⏳ <%{_color}%>%{_display_time}%" to {_h::*}
+                    else if {_c} > 0:
+                        add "<#FF4545>⌛ <%{_color}%>%{_display_time}%" to {_h::*}
+                    else:
+                        add "<%{_color}%>%first 5 characters of {_e} in uppercase%" to {_h::*}
+            else:
+                add "<#e05a5a>  ✘✘✘  " to {_h::*}
+
+        if size of {_h::*} > 0:
+            # if {infuse::stats::%{_u}%::display_actionbar} ? true is true:
+            #     set {_bid} to "infuse-%uuid of {_p}%"
+            #     if boss bar with id {_bid} exists:
+            #         set {_bar} to boss bar with id {_bid}
+            #         remove {_p} from {_bar}
+            #         delete {_bar}
+
+            send action bar (join {_h::*} with "  ") to {_p}
+            # else:
+            #     set {_bid} to "infuse-%uuid of {_p}%"
+            #     if boss bar with id {_bid} does not exist:
+            #         set {_bar} to new boss bar with id {_bid} with title "" with color blue with progress 100
+            #         set boss bar style of {_bar} to solid bar
+            #         add {_p} to {_bar}
+            #     else:
+            #         set {_bar} to boss bar with id {_bid}
+
+            #     set boss bar title of {_bar} to (join {_h::*} with "  ")
+            
+every 1 tick:
+    # set {_ms_start} to (unix timestamp of now) * 1000
+    loop all players:
+        set {_p} to loop-player
+        set {_u} to uuid of loop-player
+
+        set {_ids::*} to all indices of {-infuse::transient::%{_u}%::rwc::*}
+        set {_count} to size of {_ids::*}
+        
+        if {_count} > 0:
+            add 3 to {-infuse::transient::%{_u}%::orb_rot}
+            if {-infuse::transient::%{_u}%::orb_rot} > 360:
+                remove 360 from {-infuse::transient::%{_u}%::orb_rot}
+            
+            set {_origin} to eye location of loop-player
+            set {_i} to 0
+            loop {_ids::*}:
+                add 1 to {_i}
+                set {_id} to loop-value-2
+                
+                set {_inner} to {-infuse::transient::%{_u}%::rwc::%{_id}%::inner}
+                set {_outer} to {-infuse::transient::%{_u}%::rwc::%{_id}%::outer}
+                if {_inner} is alive:
+                    if {_outer} is alive:
+                        set {_v} to vector(1.5, 0, 0)
+                        set {_angle} to {-infuse::transient::%{_u}%::orb_rot} + ({_i} * (360 / {_count}))
+                        rotate {_v} around y-axis by {_angle}
+                        
+                        set {_target} to {_origin} ~ {_v}
+                        add (0.2 * sin({-infuse::transient::%{_u}%::orb_rot} * 2 + ({_i} * 90))) - 0.3 to y-coord of {_target}
+
+                        set {_rot_in} to {-infuse::transient::%{_u}%::orb_rot} * 4
+                        set {_rot_out} to {-infuse::transient::%{_u}%::orb_rot} * -4
+                        
+                        teleport {_inner} to location({_target}'s x-coord, {_target}'s y-coord, {_target}'s z-coord, {_target}'s world, {_rot_in}, 0)
+                        teleport {_outer} to location({_target}'s x-coord, {_target}'s y-coord, {_target}'s z-coord, {_target}'s world, {_rot_out}, 0)
+                        
+                    else:
+                        kill {_inner}
+                        delete {-infuse::transient::%{_u}%::rwc::%{_id}%::*}
+                else:
+                    kill {_outer}
+                    delete {-infuse::transient::%{_u}%::rwc::%{_id}%::*}
+
+        if has_infuse({_p}, "fire") is true:
+            if block at {_p} is lava:
+                if {_p} is sneaking:
+                    set gliding state of {_p} to on
+                    push {_p} forwards with force {-infuse::config::fire::swim_power}
+        
+every 4 ticks:
+    {infuse::disabled::%{_u}%} is not set
+    loop all players:
+        
+        set {_p} to loop-player
+        set {_u} to uuid of loop-player
+        if has_infuse({_p}, "frost") is true:
+            set freeze time of {_p} to 0 ticks
+            if  {-infuse::flags::frost_replace::*} contains block below {_p}:
+                if {-infuse::transient::%{_u}%::frost_attributes} ? false is false:
+                    if has_spark({_p}, "frost") is true:
+                        apply transient attribute modifier to {_p}:
+                            attribute: generic movement speed
+                            id: "infuse:frost_speed"
+                            amount: {-infuse::config::frost::spark_move_speed}
+                            operation: multiply_scalar_1
+                    else:
+                        apply transient attribute modifier to {_p}:
+                            attribute: generic movement speed
+                            id: "infuse:frost_speed"
+                            amount: {-infuse::config::frost::move_speed}
+                            operation: multiply_scalar_1
+                    apply transient attribute modifier to {_p}:
+                        attribute: generic knockback resistance
+                        id: "infuse:frost_kbres"
+                        amount: {-infuse::config::frost::knockback_resistance}
+                        operation: multiply_scalar_1
+                    set {-infuse::transient::%{_u}%::frost_attributes} to true
+            else:
+                loop all blocks in radius 2 around {_p}:
+                    if loop-block is lava:
+                        set loop-block to (random element out of {-infuse::flags::lava_replace::*})
+                if {-infuse::transient::%{_u}%::frost_attributes} is true:
+                    remove attribute modifier with key "infuse:frost_speed" from {_p}
+                    remove attribute modifier with key "infuse:frost_kbres" from {_p}
+                    set {-infuse::transient::%{_u}%::frost_attributes} to false
+
+            set {_is} to false
+            loop all blocks in radius 1.1 around {_p}:
+                if loop-block is powder snow:
+                    set {_is} to true
+                    exit loop
+
+            if {_is} is true:
+                {_p} is alive
+                if {-infuse::transient::%{_u}%::frost_boots} is not set:
+                    set {_t} to boots of {_p}
+                    set {_e::*} to enchantments of {_t}
+                    set {-infuse::transient::%{_u}%::frost_boots} to {_t}
+                    set {_new} to leather boots
+
+                    if {_t} is not leather boots:
+                        set dyed color of {_new} to rgb(255, 255, 255)
+                        set {_arm} to 0
+                        set {_tgh} to 0
+                        set {_kb} to 0
+
+                    if {_t} is netherite boots:
+                        set dyed color of {_new} to rgb(49, 47, 51)
+                        set {_arm} to 3
+                        set {_tgh} to 3
+                        set {_kb} to 0.1
+                    else if {_t} is diamond boots:
+                        set dyed color of {_new} to rgb(51, 235, 204)
+                        set {_arm} to 3
+                        set {_tgh} to 2
+                        set {_kb} to 0
+                    else if {_t} is iron boots:
+                        set dyed color of {_new} to rgb(206, 211, 212)
+                        set {_arm} to 2
+                        set {_tgh} to 0
+                        set {_kb} to 0
+                    else if {_t} is golden boots:
+                        set dyed color of {_new} to rgb(248, 209, 44)
+                        set {_arm} to 1
+                        set {_tgh} to 0
+                        set {_kb} to 0
+                    else if {_t} is chainmail boots:
+                        set dyed color of {_new} to rgb(161, 161, 161)
+                        set {_arm} to 2
+                        set {_tgh} to 0
+                        set {_kb} to 0
+                    
+                    enchant {_new} with curse of binding 1
+                    enchant {_new} with curse of vanishing 1
+                    enchant {_new} with {_e::*}
+
+                    apply attribute modifier to {_new}:
+                        attribute: generic armor
+                        id: "minecraft:armor.boots"
+                        amount: {_arm}
+                        slot: feet_slot_group
+                        operation: add_number
+                    if {_tgh} > 0:
+                        apply attribute modifier to {_new}:
+                            attribute: generic armor toughness
+                            id: "minecraft:armor.boots"
+                            amount: {_tgh}
+                            slot: feet_slot_group
+                            operation: add_number
+                    if {_kb} > 0:
+                        apply attribute modifier to {_new}:
+                            attribute: generic knockback resistance
+                            id: "minecraft:armor.boots"
+                            amount: {_kb}
+                            slot: feet_slot_group
+                            operation: add_number
+
+                    set the boots of {_p} to {_new}
+            else:
+                if {-infuse::transient::%{_u}%::frost_boots} is set:
+                    set {_old} to {-infuse::transient::%{_u}%::frost_boots}
+                    delete {-infuse::transient::%{_u}%::frost_boots}
+                    set the boots of {_p} to {_old}
+            
+        if {-infuse::config::frost::replace_floor} is true:
+            if {-infuse::transient::%{_u}%::freeze_stacks} ? 0 > 0:
+                if {-infuse::flags::frost_replace::*} does not contain block below {_p}:
+                    if block below {_p} is not air:
+                        set block below {_p} to (random element out of {-infuse::flags::frost_replace::*})
+                        
+        
+        # set {_rwcc} to {-infuse::transient::%{_u}%::rwc}
+        # if {_rwcc} > 0:
+        #     add 3 to {-infuse::transient::%{_u}%::orb_rot}
+        #     if {-infuse::transient::%{_u}%::orb_rot} > 360:
+        #         remove 360 from {-infuse::transient::%{_u}%::orb_rot}
+        #     set {_origin} to eye location of {_p}
+        #     loop {_rwcc} times:
+        #         set {_i} to loop-value-2
+        #         set {_v} to vector(1.5, 0, 0)
+        #         rotate {_v} around y-axis by {-infuse::transient::%{_u}%::orb_rot} + ({_i} * (360 / {_rwcc}))
+        #         set {_particle_loc} to {_origin} ~ {_v}
+        #         set y-coord of {_particle_loc} to y-coord of {_particle_loc} + (0.2 * sin({-infuse::transient::%{_u}%::orb_rot} * 2 + ({_i} * 90))) - 0.3
+        #         force draw (1 white dust particles of size 0.8 with an extra value of 0) at {_particle_loc}
+
+    # set {_duration} to unix timestamp of now * 1000 - {_ms_start}
+    # add {_duration} to {perf::total_time}
+    # add 1 to {perf::tick_count}
+    # if {perf::tick_count} >= 600:
+    #     set {_avg} to {perf::total_time} / 600
+    #     broadcast "&b[Monitor] &fAvg Heartbeat: &e%{_avg}%ms | %({_avg} / average tick time)*100%%%, %({_avg} / 50)*100%%%"
+    #     set {perf::total_time} to 0
+    #     set {perf::tick_count} to 0
+
+every 10 minutes:
+    loop all players:
+        if has_infuse(loop-player, "emerald") is true:
+            chance of {-infuse::config::emerald::enchant_chance}:
+                if {-infuse::flags::looting_enchanted::*} contains loop-player's tool:
+                    enchant loop-player's tool with looting 10
+                    play sound "entity.villager.yes" at loop-player
+
+        if has_infuse(loop-player, "haste") is true:
+            chance of {-infuse::config::haste::enchant_chance}:
+                if {-infuse::flags::tools::*} contains loop-player's tool:
+                    enchant loop-player's tool with unbreaking 10
+                    play sound "entity.villager.yes" at loop-player
+                if {-infuse::flags::fortune_enchanted::*} contains loop-player's tool:
+                    enchant loop-player's tool with fortune 5
+                    play sound "entity.villager.yes" at loop-player
+
+        if has_infuse(loop-player, "ocean") is true:
+            chance of {-infuse::config::ocean::enchant_chance}:
+                if loop-player's tool is a trident:
+                    enchant loop-player's tool with loyalty 5
+                    play sound "entity.dolphin.play" at loop-player
+
+every 1 second:
+    add all mobs to team named "invis-effect"
+    loop all players: 
+        set {_p} to loop-player
+        set {_u} to uuid of {_p}
+        if has_infuse({_p}, "haste") is true:
+            {-infuse::transient::%{_u}%::atkspd_stack} ? 0 > 0
+            atkspd_stack({_p}, {-infuse::config::haste::decay_amount})
+
+        if has_infuse({_p}, "ocean") is true:
+            loop all players in radius {-infuse::config::ocean::passive_radius} around {_p}:
+                set {_v} to loop-player-2
+                set {_v_u} to uuid of {_v}
+                {_v} is not {_p}
+                
+                if {infuse::trust::%{_u}%::%{_v_u}%} is not set:
+                    if {_v} does not have water breathing:
+                        set {_res} to level of respiration of helmet of {_v}
+                        set {_v_max} to (15 + ({_res} * 15))
+                        
+                        set {-infuse::transient::%{_v_u}%::ocean_air} to {-infuse::transient::%{_v_u}%::ocean_air} ? {_v_max}
+                        remove 1 from {-infuse::transient::%{_v_u}%::ocean_air}
+                        
+                        if {-infuse::transient::%{_v_u}%::ocean_air} <= 0:
+                            set {-infuse::transient::%{_v_u}%::ocean_air} to 0
+                            make {_p} damage {_v} by {-infuse::config::ocean::drown_damage}
+                        
+                        oxygen_bar({_v}, {-infuse::transient::%{_v_u}%::ocean_air}, {_v_max})
+                        set {-infuse::transient::%{_v_u}%::ocean_active} to now
+
+        if {-infuse::transient::%{_u}%::ocean_air} is set:
+            if difference between {-infuse::transient::%{_u}%::ocean_active} and now > 1.1 seconds:
+                set {_res} to level of respiration of helmet of {_p}
+                set {_p_max} to (15 + ({_res} * 15))
+                
+                add 2 to {-infuse::transient::%{_u}%::ocean_air} 
+                oxygen_bar({_p}, {-infuse::transient::%{_u}%::ocean_air}, {_p_max})
+                
+                if {-infuse::transient::%{_u}%::ocean_air} >= {_p_max}:
+                    delete {-infuse::transient::%{_u}%::ocean_air}
+                    delete {-infuse::transient::%{_u}%::ocean_active}
+                        
+        if team name of team of {_p} is "invis-effect":
+            if has_infuse({_p},"invisibility") is false:
+                remove {_p} from team named "invis-effect"
+        else:
+            if has_infuse({_p},"invisibility") is true:
+                add {_p} to team named "invis-effect"
+every 5 ticks:
+    loop all players:
+        # if has_infuse(loop-player, "frost") is true:
+        #     loop blocks in radius 2 around loop-player:
+        #         if loop-block is water:
+        #             update loop-block to be frosted ice
+        {infuse::disabled::%{_u}%} is not set
+
+        if loop-player is burning:
+            if has_infuse(loop-player, "fire") is true:
+                clear {_blocks::*}
+                clear {_blocks_location::*}
+                loop all blocks in radius 3 around loop-player:
+                    if loop-block is water:
+                        add loop-block to {_blocks::*}
+                        add location of loop-block to {_blocks_location::*}
+
+                update {_blocks::*} to be air
+                force draw (1 gray dust particles of size 5 with an extra value of 0.5) at {_blocks_location::*}
+                play sound "block.lava.extinguish" at {_p}
+
+            set {_canSpread} to false
+            loop all players in radius 6 of loop-player:
+                if has_infuse(loop-player-2, "fire") is true:
+                    set {_canSpread} to true
+                    exit loop
+
+            if {_canSpread} is true:
+                loop all players in radius 1.5 of loop-player:
+                    loop-player-2 is not loop-player-1
+
+                    ignite loop-player-2 for 10 seconds
+                    force draw (5 flame particles with an extra value of 0.5) at loop-player-2
+                    play sound "block.fire.ambient" with volume 0.7 at loop-player-2
+
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

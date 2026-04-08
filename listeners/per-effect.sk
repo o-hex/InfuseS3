@@ -1,0 +1,195 @@
+#  ███       ███       ███          ████   ███           █████                                                            
+# ▒▒▒███    ▒▒▒███    ▒▒▒███       ▒▒███  ▒▒▒           ▒▒███                                                             
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███      ▒███  ████   █████  ███████    ██████  ████████    ██████  ████████   █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ▒███ ▒▒███  ███▒▒  ▒▒▒███▒    ███▒▒███▒▒███▒▒███  ███▒▒███▒▒███▒▒███ ███▒▒            
+#      ███▒      ███▒      ███▒     ▒███  ▒███ ▒▒█████   ▒███    ▒███████  ▒███ ▒███ ▒███████  ▒███ ▒▒▒ ▒▒█████           
+#    ███▒      ███▒      ███▒       ▒███  ▒███  ▒▒▒▒███  ▒███ ███▒███▒▒▒   ▒███ ▒███ ▒███▒▒▒   ▒███      ▒▒▒▒███          
+#  ███▒      ███▒      ███▒         █████ █████ ██████   ▒▒█████ ▒▒██████  ████ █████▒▒██████  █████     ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒          ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒     ▒▒▒▒▒   ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒     ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███                                                     ██████     ██████                     █████    ███      
+#      ███▒                                                     ███▒▒███   ███▒▒███                   ▒▒███    ▒▒▒███    
+#    ███▒    ████████   ██████  ████████              ██████   ▒███ ▒▒▒   ▒███ ▒▒▒   ██████   ██████  ███████    ▒▒▒███  
+#  ███▒     ▒▒███▒▒███ ███▒▒███▒▒███▒▒███ ██████████ ███▒▒███ ███████    ███████    ███▒▒███ ███▒▒███▒▒▒███▒       ▒▒▒███
+# ▒▒▒███     ▒███ ▒███▒███████  ▒███ ▒▒▒ ▒▒▒▒▒▒▒▒▒▒ ▒███████ ▒▒▒███▒    ▒▒▒███▒    ▒███████ ▒███ ▒▒▒   ▒███         ███▒ 
+#   ▒▒▒███   ▒███ ▒███▒███▒▒▒   ▒███                ▒███▒▒▒    ▒███       ▒███     ▒███▒▒▒  ▒███  ███  ▒███ ███   ███▒   
+#     ▒▒▒███ ▒███████ ▒▒██████  █████               ▒▒██████   █████      █████    ▒▒██████ ▒▒██████   ▒▒█████  ███▒     
+#       ▒▒▒  ▒███▒▒▒   ▒▒▒▒▒▒  ▒▒▒▒▒                 ▒▒▒▒▒▒   ▒▒▒▒▒      ▒▒▒▒▒      ▒▒▒▒▒▒   ▒▒▒▒▒▒     ▒▒▒▒▒  ▒▒▒       
+#            ▒███                                                                                                        
+#            █████                                                                                                       
+#           ▒▒▒▒▒                                                                                                        
+
+# ┓┏┏┓┏┓┳┓┏┳┓
+# ┣┫┣ ┣┫┣┫ ┃ 
+# ┛┗┗┛┛┗┛┗ ┻ 
+
+on consume:
+    if has_infuse(player, "heart") is true:
+        custom model data of event-item is not between 414001 and 414012
+        if event-item is enchanted golden apple:
+            apply potion effect of absorption of tier {-infuse::config::heart::egap_absorption_tier} to player for {-infuse::config::heart::egap_item_duration}
+        else:
+            apply potion effect of absorption of tier {-infuse::config::heart::food_item_absorption_tier} to player for {-infuse::config::heart::food_item_duration}
+
+# ┏┓┳┳┓┏┓┳┓┏┓┓ ┳┓
+# ┣ ┃┃┃┣ ┣┫┣┫┃ ┃┃
+# ┗┛┛ ┗┗┛┛┗┛┗┗┛┻┛
+
+on experience increase:
+    if has_infuse(player, "emerald") is true:
+        set {_xp} to event-experience
+        add {_xp}*{-infuse::config::emerald::xp_gain} to experience of event-player
+        if has_spark(event-player, "emerald") is true:
+            add {_xp}*{-infuse::config::emerald::spark_xp_gain} to experience of event-player
+
+on consume:
+    if has_infuse(event-player, "emerald") is true:
+        custom model data of event-item is not between 414001 and 414012
+        if {-infuse::flags::consumable_filtered::*} contains event-item:
+            if has_spark(event-player, "emerald") is true:
+                chance of {-infuse::config::emerald::spark_no_consume_chance}:
+                    wait 1 tick
+                    give 1 of event-item to event-player
+                    play sound "entity.villager.yes" at event-player
+            else:
+                chance of {-infuse::config::emerald::no_consume_chance}:
+                    wait 1 tick
+                    give 1 of event-item to event-player
+                    play sound "entity.villager.yes" at event-player
+
+on enchant prepare:
+    if has_infuse(player, "emerald") is true:
+        if {-infuse::transient::%uuid of player%::active_item} is not event-item:
+            set {-infuse::transient::%uuid of player%::active_item} to event-item
+            delete {-infuse::transient::%uuid of player%::enchants::*}
+            set {_lvls::*} to random integer between 2 and 10, random integer between 6 and 21 and 30
+            set {-infuse::transient::%uuid of player%::stored_lvls::*} to {_lvls::*}
+            loop 3 times:
+                set {_g} to event-item
+                randomly enchant {_g} at level {_lvls::%loop-iteration%}
+                set {-infuse::transient::%uuid of player%::enchants::%loop-iteration%::*} to enchantments of {_g}
+        loop 3 times:
+            set {_e::*} to {-infuse::transient::%uuid of player%::enchants::%loop-iteration%::*}
+            if {_e::*} is set:
+                set enchant offer loop-iteration to {_e::1}
+                set cost of enchant offer loop-iteration to {-infuse::transient::%uuid of player%::stored_lvls::%loop-iteration%}
+
+on enchant:
+    if has_infuse(player, "emerald") is true:
+        if clicked button is 1:
+            set {_enchants::*} to {-infuse::transient::%uuid of player%::enchants::1::*}
+            set the applied enchantments to {_enchants::*}
+            remove 1 from player's level
+        else if clicked button is 2:
+            set {_enchants::*} to {-infuse::transient::%uuid of player%::enchants::2::*}
+            set the applied enchantments to {_enchants::*}
+            remove 2 from player's level
+        else if clicked button is 3:
+            set {_enchants::*} to {-infuse::transient::%uuid of player%::enchants::3::*}
+            set the applied enchantments to {_enchants::*}
+            remove 3 from player's level
+        delete {-infuse::transient::%uuid of player%::*}
+        play sound "block.enchantment_table.use" with pitch 1.2 at player
+
+        
+# ┏┓┏┓┏┓┏┳┓┓┏┏┓┳┓
+# ┣ ┣ ┣┫ ┃ ┣┫┣ ┣┫
+# ┻ ┗┛┛┗ ┻ ┛┗┗┛┛┗
+               
+
+# on damage:
+#     if victim is a wind charge:
+#         loop all players:
+#             if {-infuse::transient::%uuid of loop-player%::rwc::*} contains victim:
+#                 kill victim
+
+on sneak toggle:
+    player is sneaking
+    set {_u} to uuid of player
+    loc_int(location of player) is false
+    set {_ids::*} to all indices of {-infuse::transient::%{_u}%::rwc::*}
+    if size of {_ids::*} > 0:
+        set {_id} to {_ids::%size of {_ids::*}%}
+
+        set {_inner} to {-infuse::transient::%{_u}%::rwc::%{_id}%::inner}
+        set {_outer} to {-infuse::transient::%{_u}%::rwc::%{_id}%::outer}
+        
+        kill {_inner}
+        kill {_outer}
+
+        delete {-infuse::transient::%{_u}%::rwc::%{_id}%::*}
+
+        make player shoot a wind charge at speed 2
+        play sound "entity.wind_charge.throw" with volume 1 at player
+
+    # set {_e} to random element of {-infuse::transient::%{_u}%::rwc::*}
+        
+    # if {_e} is set:
+    #     remove {_e} from {-infuse::transient::%{_u}%::rwc::*}
+    #     set velocity of {_e} to vector(0,0,0)
+    #     teleport {_e} to block in front of eye of player
+    #     set {_dir} to vector from yaw player's yaw and pitch player's pitch
+    #     set velocity of {_e} to {_dir} * 2
+    
+    # if {-infuse::transient::%uuid of player%::rwc} > 0:
+    #     subtract 1 from {-infuse::transient::%uuid of player%::rwc}
+    #     spawn a wind charge at eye location of player
+    #     set {_e} to last spawned entity
+    #     set {_dir} to vector from yaw player's yaw and pitch player's pitch
+    #     set velocity of {_e} to {_dir} * 2
+
+# ┳┓┏┓┏┓┏┓┳┓┏┓┳┓┏┓┏┳┓┳┏┓┳┓
+# ┣┫┣ ┃┓┣ ┃┃┣ ┣┫┣┫ ┃ ┃┃┃┃┃
+# ┛┗┗┛┗┛┗┛┛┗┗┛┛┗┛┗ ┻ ┻┗┛┛┗                        
+
+on right click:
+    if {-infuse::flags::consumable_items::*} contains event-item:
+        if has_infuse(event-player, "regeneration") is true:       
+            if nbt of event-item is a blank nbt compound:
+                set custom model data strings of event-item to "infuse:food"
+                apply food component to event-item:
+                    nutrition: {-infuse::config::regeneration::food}
+                    saturation: {-infuse::config::regeneration::saturation}
+                    can_always_eat: true
+                wait 1.6 seconds
+                reset nbt of event-item
+        else:
+            if custom model data strings of event-item contains "infuse:food":
+                reset nbt of event-item
+
+# ┏┓┏┓┏┓┏┓┳┓
+# ┗┓┃┃┣ ┣ ┃┃
+# ┗┛┣┛┗┛┗┛┻┛
+          
+on right click with bow:
+    if has_infuse(event-player, "speed") is true:
+        set {_waited} to difference between {infuse::cooldown::%player%::last_shot} and now
+        if {_waited} is less than 0.75 seconds:
+            stop
+        set {_session} to random uuid
+        set {-infuse::transient::%uuid of player%::session} to {_session}
+        set {infuse::cooldown::%player%::last_shot} to now
+        
+        wait 0.75 seconds
+        if {-infuse::transient::%uuid of player%::session} is {_session}:
+            delete {-infuse::transient::%uuid of player%::session}
+            interrupt use of event-player's active item 
+            make player shoot an arrow at speed 3
+            play sound "entity.arrow.shoot" with volume 1 and pitch 1.2 at player
+            set {_item} to player's tool
+            set player's tool to air
+            set player's tool to {_item}
+
+on stop item use:
+    if event-item is bow:
+        if has_infuse(event-player, "speed") is true:
+            delete {-infuse::transient::%uuid of player%::session}
+            interrupt use of event-player's active item 
+
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 
