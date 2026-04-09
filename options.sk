@@ -64,7 +64,11 @@ options:
     strength.shield_disable_damage: 20           # Durability removed from shield on disable
     strength.shield_penetration: 2               # Calculated in damage / x, 1 = 100%, 2 = 50%, 3 = 33%, 4 = 25%, 5 = 20%, supports decimals
     strength.mob_damage: 2                       # Damage multiplier towards mobs
-    strength.hp_loss_atk_bonus: 0.3              
+    strength.hp_loss_atk_bonus: 0.3      
+    strength.double_crit_mult: 1.334             # since strength already auto-crits in spark, i believe this is necessary to not make the normal crit obsolete
+                                                 # 1.334 means 1.5 (the default crit multiplier) * 1.334 (the additional crit "double critting") = 2x
+                                                 # this creates a 2x multiplier TOTAL if you crit while already having the strength auto crit
+                                                 # if you want to disable this just set it to ONE (1) NOT ZERO (0)
 
     strength.cooldown: 60 seconds
     strength.spark: 15 seconds
@@ -264,6 +268,7 @@ on load:
     set {-infuse::config::strength::shield_penetration} to {@strength.shield_penetration}
     set {-infuse::config::strength::mob_damage} to {@strength.mob_damage}
     set {-infuse::config::strength::hp_loss_atk_bonus} to {@strength.hp_loss_atk_bonus}
+    set {-infuse::config::strength::double_crit_mult} to {@strength.double_crit_mult}
     set {-infuse::config::strength::cd} to {@strength.cooldown}'s ticks
     set {-infuse::config::strength::spark} to {@strength.spark}'s ticks
 
