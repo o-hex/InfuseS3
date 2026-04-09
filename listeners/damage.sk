@@ -106,6 +106,8 @@ on damage of mobs or players:
 
 on damage of player by player:
     attacker is not victim
+    if metadata "isolate_hit" of attacker is true:
+        stop
 
     if has_infuse(attacker, "emerald") is true:
         if {infuse::trust::%uuid of attacker%::%uuid of victim%} is set:
@@ -161,13 +163,14 @@ on damage of player by player:
     if has_infuse(attacker, "strength") is true:
         set damage to damage + (the max health of attacker - the health of attacker) * {-infuse::config::strength::hp_loss_atk_bonus}
 
-        if has_spark(attacker, "strength") is true:
+    if has_spark(attacker, "strength") is true:
+        if hit is critical:
+            set damage to damage * {-infuse::config::strength::double_crit_mult}
+            force draw (10 end rod particles with an extra value of 0.2) at middle(victim)
+        else:
             set damage to damage * 1.5
-            if hit is critical:
-                force draw (10 end rod particles with an extra value of 0.5) at middle(victim)
-            else:
-                force draw (10 crit particles with an extra value of 0.5) at middle(victim)
-                play sound "entity.player.attack.crit" at attacker
+            force draw (10 crit particles with an extra value of 0.5) at middle(victim)
+            play sound "entity.player.attack.crit" at attacker
 
         attacker's tool is not air
         victim is blocking
@@ -175,7 +178,9 @@ on damage of player by player:
             damage victim's active tool by {-infuse::config::strength::shield_disable_damage}
             interrupt the usage of victim's active item
             set item cooldown of shield for victim to {-infuse::config::strength::shield_disable_time}
+            set metadata "isolate_hit" of attacker to true
             make attacker damage victim by damage/{-infuse::config::strength::shield_penetration}
+            set metadata "isolate_hit" of attacker to false
             play sound "item.shield.break" at victim
             play sound "entity.generic.hurt" at victim
 
