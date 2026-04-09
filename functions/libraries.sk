@@ -149,17 +149,17 @@ function flat_circle(center: location, radius: number, rotation: number, iter: i
     return {_res::*}
 
 function bounce(t: number) :: number:
-    if {_t} < (4/11):
-        return (121/16) * {_t} * {_t}
-    else if {_t} < (8/11):
-        set {_t} to {_t} - (6/11)
-        return (121/16) * {_t} * {_t} + 0.75
-    else if {_t} < (10/11):
-        set {_t} to {_t} - (9/11)
-        return (121/16) * {_t} * {_t} + 0.9375
+    if {_t} < 0.363636:
+        return  7.5625 * {_t} * {_t}
+    else if {_t} < 0.727273:
+        set {_t} to {_t} - 0.545455
+        return  7.5625 * {_t} * {_t} + 0.75
+    else if {_t} < 0.909091:
+        set {_t} to {_t} - 0.818182
+        return 7.5625 * {_t} * {_t} + 0.9375
     else:
-        set {_t} to {_t} - (21/22)
-        return (121/16) * {_t} * {_t} + 0.984375
+        set {_t} to {_t} - 0.954545
+        return 7.5625 * {_t} * {_t} + 0.984375
 
 function elastic(t: number) :: number:
     if {_t} = 0:
