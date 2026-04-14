@@ -170,3 +170,17 @@
 │ SPARK EFFECTS:                                                           │
 │  - All attacks are critical                                              │
 └──────────────────────────────────────────────────────────────────────────┘
+
+### ENDER EFFECT
+┌──────────────────────────────────────────────────────────────────────────┐
+│ PASSIVE EFFECTS:                                                         │
+│  - All nearby untrusted players have glowing                             │
+│  - Use dragon's breath to shoot powerful fireballs that curse players    │
+│  - Curse untrusted players on hit which shares damage with all cursed    │
+│    players                                                               │
+├──────────────────────────────────────────────────────────────────────────┤
+│ SPARK EFFECTS:                                                           │
+│  - Teleport to the cursor position within a 15 block radius              │
+│  - Instantly kills any mob and curses players                            │
+│  - Cursing a player resets the spark cooldown                            │
+└──────────────────────────────────────────────────────────────────────────┘

@@ -157,34 +157,38 @@ on right click:
             if custom model data strings of event-item contains "infuse:food":
                 reset nbt of event-item
 
+on hunger level change:
+    if has_infuse(event-player, "regeneration") is true:
+        set the player's food level to 10
+
 # ┏┓┏┓┏┓┏┓┳┓
 # ┗┓┃┃┣ ┣ ┃┃
 # ┗┛┣┛┗┛┗┛┻┛
           
-on right click with bow:
-    if has_infuse(event-player, "speed") is true:
-        set {_waited} to difference between {infuse::cooldown::%player%::last_shot} and now
-        if {_waited} is less than 0.75 seconds:
-            stop
-        set {_session} to random uuid
-        set {-infuse::transient::%uuid of player%::session} to {_session}
-        set {infuse::cooldown::%player%::last_shot} to now
+# on right click with bow:
+#     if has_infuse(event-player, "speed") is true:
+#         set {_waited} to difference between {infuse::cooldown::%player%::last_shot} and now
+#         if {_waited} is less than 0.75 seconds:
+#             stop
+#         set {_session} to random uuid
+#         set {-infuse::transient::%uuid of player%::session} to {_session}
+#         set {infuse::cooldown::%player%::last_shot} to now
         
-        wait 0.75 seconds
-        if {-infuse::transient::%uuid of player%::session} is {_session}:
-            delete {-infuse::transient::%uuid of player%::session}
-            interrupt use of event-player's active item 
-            make player shoot an arrow at speed 3
-            play sound "entity.arrow.shoot" with volume 1 and pitch 1.2 at player
-            set {_item} to player's tool
-            set player's tool to air
-            set player's tool to {_item}
+#         wait 0.75 seconds
+#         if {-infuse::transient::%uuid of player%::session} is {_session}:
+#             delete {-infuse::transient::%uuid of player%::session}
+#             interrupt use of event-player's active item 
+#             make player shoot an arrow at speed 3
+#             play sound "entity.arrow.shoot" with volume 1 and pitch 1.2 at player
+#             set {_item} to player's tool
+#             set player's tool to air
+#             set player's tool to {_item}
 
-on stop item use:
-    if event-item is bow:
-        if has_infuse(event-player, "speed") is true:
-            delete {-infuse::transient::%uuid of player%::session}
-            interrupt use of event-player's active item 
+# on stop item use:
+#     if event-item is bow:
+#         if has_infuse(event-player, "speed") is true:
+#             delete {-infuse::transient::%uuid of player%::session}
+#             interrupt use of event-player's active item 
 
 #                                                                             ┓       
 #                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━

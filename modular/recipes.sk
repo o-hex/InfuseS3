@@ -10,18 +10,19 @@ function open_recipes_main(p: player):
     set {_b} to black stained glass pane named " "
     hide the entire tooltip of {_b}
     set slot (integers between 0 to 44) of {_c} to {_b}
-    set slot 10 of {_c} to get_item("emerald",      false, true)
+    set slot 4 of {_c} to get_item("emerald",      false, true)
     set slot 12 of {_c} to get_item("feather",      false, true)
-    set slot 14 of {_c} to get_item("fire",         false, true)
-    set slot 16 of {_c} to get_item("frost",        false, true)
-    set slot 19 of {_c} to get_item("haste",        false, true)
+    set slot 13 of {_c} to get_item("fire",         false, true)
+    set slot 14 of {_c} to get_item("frost",        false, true)
+    set slot 20 of {_c} to get_item("haste",        false, true)
     set slot 21 of {_c} to get_item("heart",        false, true)
     set slot 23 of {_c} to get_item("invisibility", false, true)
-    set slot 25 of {_c} to get_item("ocean",        false, true)
-    set slot 28 of {_c} to get_item("regeneration", false, true)
-    set slot 30 of {_c} to get_item("speed",        false, true)
+    set slot 24 of {_c} to get_item("ocean",        false, true)
+    set slot 30 of {_c} to get_item("regeneration", false, true)
+    set slot 31 of {_c} to get_item("speed",        false, true)
     set slot 32 of {_c} to get_item("strength",     false, true)
-    set slot 34 of {_c} to get_item("thunder",      false, true)
+    set slot 40 of {_c} to get_item("thunder",      false, true)
+    set slot 22 of {_c} to get_item("ender",      true, true)
     set {_exit} to barrier named "<bold><#E13030>Exit"
     set slot 44 of {_c} to {_exit}
     set metadata tag "infuse_recipes_gui" of {_p} to "main"
@@ -62,30 +63,32 @@ on inventory click:
         close player's inventory
         stop
     if {_state} is "main":
-        if {_slot} is 10: 
+        if {_slot} is 4: 
             open_recipes_view(player, "emerald")
         else if {_slot} is 12: 
             open_recipes_view(player, "feather")
-        else if {_slot} is 14: 
+        else if {_slot} is 13: 
             open_recipes_view(player, "fire")
-        else if {_slot} is 16: 
+        else if {_slot} is 14: 
             open_recipes_view(player, "frost")
-        else if {_slot} is 19: 
+        else if {_slot} is 20: 
             open_recipes_view(player, "haste")
         else if {_slot} is 21: 
             open_recipes_view(player, "heart")
         else if {_slot} is 23: 
             open_recipes_view(player, "invisibility")
-        else if {_slot} is 25: 
+        else if {_slot} is 24: 
             open_recipes_view(player, "ocean")
-        else if {_slot} is 28: 
-            open_recipes_view(player, "regeneration")
         else if {_slot} is 30: 
+            open_recipes_view(player, "regeneration")
+        else if {_slot} is 31: 
             open_recipes_view(player, "speed")
         else if {_slot} is 32: 
             open_recipes_view(player, "strength")
-        else if {_slot} is 34: 
+        else if {_slot} is 40: 
             open_recipes_view(player, "thunder")
+        else if {_slot} is 22:
+            open_recipes_view(player, "ender")
     else:
         if {_slot} is 36:
             open_recipes_main(player)

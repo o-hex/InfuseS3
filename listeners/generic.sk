@@ -226,6 +226,8 @@ on consume:
         set {_e} to "speed"
     else if {_cmd} is 12:
         set {_e} to "strength"
+    else if {_cmd} is 13:
+        set {_e} to "ender"
 
     set {_u} to uuid of player
     set {_slot} to "secondary" if player is sneaking else "primary"

@@ -15,9 +15,7 @@
 # Hotswap it with /infuse:conf - Some values cannot be changed
 # Reload this skript to push all the changes - Recommended
 options:
-    # enchant_roll_frequency: 10 minutes      | Modify manually
-    # fire.spread_check: 5 ticks              | Modify manually
-    # skip_initialization: false              | Useless after ephemeral variables are introduced
+    # fire.spread_check: 5 ticks                 | Modify manually
 
     allow_same_effects: false                    # means you can stack the same effects for halving the cooldown, personally i find this interesting
     allow_true_damage: true                      # ignore
@@ -27,6 +25,11 @@ options:
     lock_effects: false                          # locks specific effects to the primary and secondary slots (can be bypassed with the admin-only /infuse command) 
     primary_effects: "heart", "strength", "regeneration", "haste", "invisibility", "frost", "thunder" and "feather" # if you dont add an effect in primary or secondary, it becomes available to be equipped in both slots
     secondary_effects: "speed", "fire", "ocean" and "emerald"
+
+    overwrite_enchants: true                     # Enchants will be overwritten, for example if you had the emerald effect that gives looting 5, and you enchanted your sword with looting 3 originally
+                                                 # your looting 3 will be overwritten and will not be restored after removing the emerald effect
+                                                 # If you really want it to restore, take a look at heartbeat.sk, there's a 120 line commented out section that only barely works
+                                                 # If you set this option to false, it won't enchant your tools if there is already an enchant present
 
     trust_list_max: 3                            # maximum people in your trust list
     trust_list_delay: 10 seconds                 # this is to prevent people from exploiting the trust list, like making a macro for the invis effect, since everyone turns invisible in your spark radius if they are your teammate
@@ -57,8 +60,10 @@ options:
     speed.augment_limit: 0
     strength.craft_limit: ∞
     strength.augment_limit: 0
-    thunder.craft_limit: ∞
-    thunder.augment_limit: 0
+    thunder.craft_limit: ∞            
+    thunder.augment_limit: 0 
+    ender.craft_limit: 1                         # i will make the ritual available by default for the ender effect
+    ender.augment_limit: 1                       # it also does use the augmented icon, so its fair
 
     strength.shield_disable_time: 10 seconds     # Normally the shield is disabled for 5 seconds, 10 seconds means its doubled
     strength.shield_disable_damage: 20           # Durability removed from shield on disable
@@ -220,6 +225,15 @@ options:
     haste.cooldown: 60 seconds
     haste.spark: 15 seconds
 
+    ender.untrust_glow_radius: 5
+    ender.dragon_fireball_speed: 2
+    ender.dragon_fireball_cooldown: 10 seconds
+    ender.curse_duration: 15 seconds
+    ender.teleport_max_radius: 15
+
+    ender.cooldown: 15 seconds
+    ender.spark: 1 second
+
 on load:
     clear {-infuse::config::*}
     # set {-infuse::config::skip_initialization} to {@skip_initialization}
@@ -236,7 +250,7 @@ on load:
     set {-infuse::config::lock_effects} to {@lock_effects}
     set {-infuse::config::primary_effects::*} to {@primary_effects}
     set {-infuse::config::secondary_effects::*} to {@secondary_effects}
-    # set {-infuse::config::enchant_roll_frequency} to {@enchant_roll_frequency}'s ticks | Engine Limitation, modify manually
+    set {-infuse::config::overwrite_enchants} to {@overwrite_enchants}
 
     set {-infuse::config::emerald::craft_limit} to {@emerald.craft_limit}
     set {-infuse::config::emerald::augment_limit} to {@emerald.augment_limit}
@@ -262,6 +276,8 @@ on load:
     set {-infuse::config::strength::augment_limit} to {@strength.augment_limit}
     set {-infuse::config::thunder::craft_limit} to {@thunder.craft_limit}
     set {-infuse::config::thunder::augment_limit} to {@thunder.augment_limit}
+    set {-infuse::config::ender::craft_limit} to {@ender.craft_limit}
+    set {-infuse::config::ender::augment_limit} to {@ender.augment_limit}
 
     set {-infuse::config::strength::shield_disable_time} to {@strength.shield_disable_time}
     set {-infuse::config::strength::shield_disable_damage} to {@strength.shield_disable_damage}
@@ -408,6 +424,14 @@ on load:
     set {-infuse::config::haste::enchant_chance} to {@haste.enchant_chance}
     set {-infuse::config::haste::cd} to {@haste.cooldown}'s ticks
     set {-infuse::config::haste::spark} to {@haste.spark}'s ticks
+
+    set {-infuse::config::ender::untrust_glow_radius} to {@ender.untrust_glow_radius}
+    set {-infuse::config::ender::dragon_fireball_speed} to {@ender.dragon_fireball_speed}
+    set {-infuse::config::ender::dragon_fireball_cooldown} to {@ender.dragon_fireball_cooldown}
+    set {-infuse::config::ender::teleport_max_radius} to {@ender.teleport_max_radius}
+    set {-infuse::config::ender::curse_duration} to {@ender.curse_duration}
+    set {-infuse::config::ender::cd} to {@ender.cooldown}'s ticks
+    set {-infuse::config::ender::spark} to {@ender.spark}'s ticks
 
 #                                                                             ┓       
 #                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━

@@ -59,14 +59,14 @@ on tab complete of "/bind" or "/infuse:bind":
     set tab completions for position 2 to "swap", "drop", "sneak", "sneak-drop", "sneak-swap" and "none"
 
 on tab complete of "/item", "/giveitem", "/potion", "/pot", "/i", "/infuse:item", "/infuse:giveitem", "/infuse:potion", "/infuse:pot" and "/infuse:i":
-    set tab completions for position 1 to ({infuse::effects::*} except "earth" and "ender")
+    set tab completions for position 1 to ({infuse::effects::*} except "earth")
     set tab completions for position 2 to "true" and "false"
 
 on tab complete of "/resetcooldown", "/rsc", "/rscd", "/rcd", "/rscooldown", "/infuse:resetcooldown", "/infuse:rsc", "/infuse:rscd", "/infuse:rcd" and "/infuse:rscooldown":
     set tab completions for position 1 to "primary" and "secondary"
 
 on tab complete of "/resetcraft", "/rsc", "/rscraft", "/infuse:resetcraft", "/infuse:rsc" and "/infuse:rscraft":
-    set tab completions for position 1 to  ({infuse::effects::*} except "earth" and "ender")
+    set tab completions for position 1 to  ({infuse::effects::*} except "earth")
 
 command /trust <text> [<text>]:
     usage: &cUsage: /trust <add|remove|list|clear> [<player>]

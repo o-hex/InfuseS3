@@ -24,29 +24,29 @@ function line(old_pos: location, new_pos: location, iter: integer=10) :: locatio
         add ({_old_pos} ~ {_vect}) to {_return::*}
     return {_return::*}
     
-# function circle(center: location, radius: number, iter: integer, bdir: vector, angle: integer=0) :: locations:
-#     set {_f} to normalized {_bdir}
-#     set {_r} to vector(1, 0, 0) if (abs(y of {_f}) > 0.9) else (normalized ({_f} cross vector(0, 1, 0)))
-#     set {_u} to normalized ({_r} cross {_f})
+function circle(center: location, radius: number, iter: integer, bdir: vector, angle: integer=0) :: locations:
+    set {_f} to normalized {_bdir}
+    set {_r} to vector(1, 0, 0) if (abs(y of {_f}) > 0.9) else (normalized ({_f} cross vector(0, 1, 0)))
+    set {_u} to normalized ({_r} cross {_f})
     
-#     set {_r} to {_r} * {_radius}
-#     set {_u} to {_u} * {_radius}
-#     set {_step} to 360 / {_iter}
-    
-#     loop {_iter} times:
-#         set {_a} to ((loop-number) - 1) * {_step} + {_angle}
-#         add ({_center} ~ (({_r} * cos({_a})) + ({_u} * sin({_a})))) to {_res::*}
-#     return {_res::*}
-    
-function circle(center: location, radius: number, iter: integer, bdir: vector, angle: integer=0) :: locations: # faster one that uses the spherical vectors from skript
-    set {_yaw} to yaw of {_bdir}
-    set {_pitch} to (pitch of {_bdir}) + 90
+    set {_r} to {_r} * {_radius}
+    set {_u} to {_u} * {_radius}
     set {_step} to 360 / {_iter}
+    
     loop {_iter} times:
-        set {_rot} to ((loop-number - 1) * {_step}) + {_angle}
-        set {_v} to spherical vector radius {_radius}, yaw ({_yaw} + {_rot}), pitch {_pitch}
-        add ({_center} ~ {_v}) to {_res::*}
+        set {_a} to ((loop-number) - 1) * {_step} + {_angle}
+        add ({_center} ~ (({_r} * cos({_a})) + ({_u} * sin({_a})))) to {_res::*}
     return {_res::*}
+    
+# function circle(center: location, radius: number, iter: integer, bdir: vector, angle: integer=0) :: locations: # faster one that uses the spherical vectors from skript
+#     set {_yaw} to yaw of {_bdir}
+#     set {_pitch} to (pitch of {_bdir}) + 90
+#     set {_step} to 360 / {_iter}
+#     loop {_iter} times:
+#         set {_rot} to ((loop-number - 1) * {_step}) + {_angle}
+#         set {_v} to spherical vector radius {_radius}, yaw ({_yaw} + {_rot}), pitch {_pitch}
+#         add ({_center} ~ {_v}) to {_res::*}
+#     return {_res::*}
 
 function midpoint(old_pos: location, new_pos: location) :: location:
     set {_vect} to vector between {_old_pos} and {_new_pos}

@@ -191,12 +191,20 @@ every 1 tick:
                     set gliding state of {_p} to on
                     push {_p} forwards with force {-infuse::config::fire::swim_power}
         
-every 4 ticks:
-    {infuse::disabled::%{_u}%} is not set
+every 2 ticks:
     loop all players:
-        
         set {_p} to loop-player
         set {_u} to uuid of loop-player
+
+        if {-infuse::transient::%uuid of loop-entity%::ender_cursed} > 0:
+            force draw (2 soul particle with an extra value of 0.02) at location 1 block above eye of loop-entity
+
+        if {infuse::disabled::%{_u}%} is set:
+            if {-infuse::transient::%{_u}%::frost_boots} is set:
+                set {_old} to {-infuse::transient::%{_u}%::frost_boots}
+                delete {-infuse::transient::%{_u}%::frost_boots}
+                set the boots of {_p} to {_old}
+            continue
         if has_infuse({_p}, "frost") is true:
             set freeze time of {_p} to 0 ticks
             if  {-infuse::flags::frost_replace::*} contains block below {_p}:
@@ -311,8 +319,16 @@ every 4 ticks:
                 if {-infuse::flags::frost_replace::*} does not contain block below {_p}:
                     if block below {_p} is not air:
                         set block below {_p} to (random element out of {-infuse::flags::frost_replace::*})
-                        
-        
+
+        if has_infuse({_p}, "ender") is true:
+            loop all players in radius {-infuse::config::ender::untrust_glow_radius} around {_p}:
+                set {_v} to loop-player-2
+                {_v} is not {_p}
+                apply potion effect of glowing of tier 1 to {_v} for 2 ticks:
+                    hide the icon
+                    hide the particles
+
+
         # set {_rwcc} to {-infuse::transient::%{_u}%::rwc}
         # if {_rwcc} > 0:
         #     add 3 to {-infuse::transient::%{_u}%::orb_rot}
@@ -335,29 +351,6 @@ every 4 ticks:
     #     broadcast "&b[Monitor] &fAvg Heartbeat: &e%{_avg}%ms | %({_avg} / average tick time)*100%%%, %({_avg} / 50)*100%%%"
     #     set {perf::total_time} to 0
     #     set {perf::tick_count} to 0
-
-every 10 minutes:
-    loop all players:
-        if has_infuse(loop-player, "emerald") is true:
-            chance of {-infuse::config::emerald::enchant_chance}:
-                if {-infuse::flags::looting_enchanted::*} contains loop-player's tool:
-                    enchant loop-player's tool with looting 10
-                    play sound "entity.villager.yes" at loop-player
-
-        if has_infuse(loop-player, "haste") is true:
-            chance of {-infuse::config::haste::enchant_chance}:
-                if {-infuse::flags::tools::*} contains loop-player's tool:
-                    enchant loop-player's tool with unbreaking 10
-                    play sound "entity.villager.yes" at loop-player
-                if {-infuse::flags::fortune_enchanted::*} contains loop-player's tool:
-                    enchant loop-player's tool with fortune 5
-                    play sound "entity.villager.yes" at loop-player
-
-        if has_infuse(loop-player, "ocean") is true:
-            chance of {-infuse::config::ocean::enchant_chance}:
-                if loop-player's tool is a trident:
-                    enchant loop-player's tool with loyalty 5
-                    play sound "entity.dolphin.play" at loop-player
 
 every 1 second:
     add all mobs to team named "invis-effect"
@@ -407,6 +400,174 @@ every 1 second:
         else:
             if has_infuse({_p},"invisibility") is true:
                 add {_p} to team named "invis-effect"
+
+        set {_item} to {_p}'s tool
+        set {_type} to plain {_item}
+
+        if has_infuse({_p}, "emerald") is true:
+            if level of looting of {_item} is not 5:
+                if {-infuse::flags::looting_enchanted::*} contains {_type}:
+                    if {-infuse::config::overwrite_enchants} is true:
+                        enchant {_p}'s tool with looting 5
+                    else:
+                        if level of looting of {_item} is not set:
+                            enchant {_p}'s tool with looting 5
+        else if level of looting of {_item} is 5:
+            enchant {_p}'s tool with looting 0
+
+        if has_infuse({_p}, "haste") is true:
+            if level of unbreaking of {_item} is not 10:
+                if {-infuse::flags::tools::*} contains {_type}:
+                    if {-infuse::config::overwrite_enchants} is true:
+                        enchant {_p}'s tool with unbreaking 10
+                    else:
+                        if level of unbreaking of {_item} is not set:
+                            enchant {_p}'s tool with unbreaking 10
+
+            if level of fortune of {_item} is not 5:
+                if {-infuse::flags::fortune_enchanted::*} contains {_type}:
+                    if {-infuse::config::overwrite_enchants} is true:
+                        enchant {_p}'s tool with fortune 5
+                    else:
+                        if level of fortune of {_item} is not set:
+                            enchant {_p}'s tool with fortune 5
+        else:
+            if level of unbreaking of {_item} is 10:
+                enchant {_p}'s tool with unbreaking 0
+            if level of fortune of {_item} is 5:
+                enchant {_p}'s tool with fortune 0
+
+        if has_infuse({_p}, "ocean") is true:
+            if level of loyalty of {_item} is not 5:
+                if {_type} is trident:
+                    if {-infuse::config::overwrite_enchants} is true:
+                        enchant {_p}'s tool with loyalty 5
+                    else:
+                        if level of loyalty of {_item} is not set:
+                            enchant {_p}'s tool with loyalty 5
+
+        else if level of loyalty of {_item} is 5:
+            enchant {_p}'s tool with loyalty 0
+
+        # Overcomplicated in an attempt to make the enchants restore after removing the effects
+        # Use at your own risk
+
+        # set {_current} to custom model data of {_item} if {_item} has custom model data else 0
+        
+        # clear {_tmp}
+        # if has_infuse({_p}, "emerald") is true: 
+        #     set {_tmp} to true
+        # else if has_infuse({_p}, "haste") is true: 
+        #     set {_tmp} to true
+        # else if has_infuse({_p}, "ocean") is true:
+        #     set {_tmp} to true
+        
+        # if {_tmp} is true:
+        #     set {_v} to false
+        #     if {-infuse::flags::looting_enchanted::*} contains {_type}: 
+        #         set {_v} to true
+        #     if {-infuse::flags::tools::*} contains {_type}: 
+        #         set {_v} to true
+        #     if {-infuse::flags::fortune_enchanted::*} contains {_type}: 
+        #         set {_v} to true
+        #     if {_type} is trident: 
+        #         set {_v} to true
+            
+        #     if {_v} is true:
+        #         if {_current} is not between 414200 and 414263:
+        #             set {_l} to level of looting of {_item}
+        #             set {_u} to level of unbreaking of {_item}
+        #             set {_misc} to level of loyalty of {_item} if {_type} is trident else level of fortune of {_item}
+        #         else:
+        #             set {_raw} to {_current} - 414200
+        #             if has_infuse({_p}, "emerald") is false:
+        #                 set {_l} to level of looting of {_item}
+        #             else:
+        #                 set {_l} to floor({_raw} / 16)
+
+        #             if has_infuse({_p}, "haste") is false:
+        #                 set {_u} to level of unbreaking of {_item}
+        #             else:
+        #                 set {_u} to floor(mod({_raw}, 16) / 4)
+
+        #             if {_type} is trident:
+        #                 if has_infuse({_p}, "ocean") is false:
+        #                     set {_misc} to level of loyalty of {_item}
+        #                 else:
+        #                     set {_misc} to mod({_raw}, 4)
+        #             else:
+        #                 if has_infuse({_p}, "haste") is false:
+        #                     set {_misc} to level of fortune of {_item}
+        #                 else:
+        #                     set {_misc} to mod({_raw}, 4)
+
+        #         set {_l} to min(3, {_l})
+        #         set {_u} to min(3, {_u})
+        #         set {_misc} to min(3, {_misc})
+                
+        #         set {_data} to ({_l} * 16) + ({_u} * 4) + {_misc}
+        #         if {_current} is not (414200 + {_data}):
+        #             set custom model data of {_p}'s tool to 414200 + {_data}
+        #             set {_current} to 414200 + {_data}
+
+        # if has_infuse({_p}, "emerald") is true:
+        #     if level of looting of {_item} is not 5:
+        #         if {-infuse::flags::looting_enchanted::*} contains {_type}:
+        #             enchant {_p}'s tool with looting 5
+
+        # if has_infuse({_p}, "haste") is true:
+        #     if level of unbreaking of {_item} is not 10:
+        #         if {-infuse::flags::tools::*} contains {_type}:
+        #             enchant {_p}'s tool with unbreaking 10
+        #     if level of fortune of {_item} is not 5:
+        #         if {-infuse::flags::fortune_enchanted::*} contains {_type}:
+        #             enchant {_p}'s tool with fortune 5
+
+        # if has_infuse({_p}, "ocean") is true:
+        #     if level of loyalty of {_item} is not 5:
+        #         if {_type} is trident:
+        #             enchant {_p}'s tool with loyalty 5
+
+        # if {_current} is between 414200 and 414263:
+        #     set {_raw} to {_current} - 414200
+
+        #     set {_needsRestore} to false
+        #     if has_infuse({_p}, "emerald") is false:
+        #         if level of looting of {_item} is 5:
+        #             set {_needsRestore} to true
+        #     if has_infuse({_p}, "haste") is false:
+        #         if level of unbreaking of {_item} is 10:
+        #             set {_needsRestore} to true
+        #         if level of fortune of {_item} is 5:
+        #             set {_needsRestore} to true
+        #     if has_infuse({_p}, "ocean") is false:
+        #         if level of loyalty of {_item} is 5:
+        #             set {_needsRestore} to true
+
+        #     if {_needsRestore} is true:
+        #         set {_origL} to floor({_raw} / 16)
+        #         set {_origU} to floor(mod({_raw}, 16) / 4)
+        #         set {_origMisc} to mod({_raw}, 4)
+
+        #         if has_infuse({_p}, "emerald") is false:
+        #             if level of looting of {_item} is 5:
+        #                 enchant {_p}'s tool with "looting %{_origL}%" parsed as enchantment type
+        #         if has_infuse({_p}, "haste") is false:
+        #             if level of unbreaking of {_item} is 10:
+        #                 enchant {_p}'s tool with "unbreaking %{_origU}%" parsed as enchantment type
+        #             if level of fortune of {_item} is 5:
+        #                 if {_type} is not trident:
+        #                     enchant {_p}'s tool with "fortune %{_origMisc}%" parsed as enchantment type
+        #         if has_infuse({_p}, "ocean") is false:
+        #             if level of loyalty of {_item} is 5:
+        #                 if {_type} is trident:
+        #                     enchant {_p}'s tool with "loyalty %{_origMisc}%" parsed as enchantment type
+
+        #     if has_infuse({_p}, "emerald") is false:
+        #         if has_infuse({_p}, "haste") is false:
+        #             if has_infuse({_p}, "ocean") is false:
+        #                 delete custom model data of {_p}'s tool
+
 every 5 ticks:
     loop all players:
         # if has_infuse(loop-player, "frost") is true:

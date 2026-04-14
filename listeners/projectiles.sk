@@ -56,6 +56,18 @@ on shoot:
         #     else:
         #         stop
 
+# ┏┓┳┓┳┓┏┓┳┓
+# ┣ ┃┃┃┃┣ ┣┫
+# ┗┛┛┗┻┛┗┛┛┗
+on right click:
+    if event-item is dragon breath:
+        if has_infuse(event-player, "ender") is true:       
+            item cooldown of event-item for player <= 0 seconds
+            remove 1 of event-item from player's inventory
+            set item cooldown of event-item for player to {-infuse::config::ender::dragon_fireball_cooldown}
+            make player shoot a dragon fireball at speed {-infuse::config::ender::dragon_fireball_speed}
+            play sound "entity.ender_dragon.shoot" at player
+
 on projectile collide:
     shooter is a player
     if has_infuse(shooter, "frost") is true:
@@ -65,7 +77,17 @@ on projectile collide:
     if has_infuse(shooter, "invisibility") is true:
         apply blindness 1 to event-entity for 5 seconds
 
-    # send "%event-projectile%, %event-entity%, %shooter%" to console
+    if has_infuse(shooter, "ender") is true:
+        event-entity is a player
+        event-entity is not shooter
+        {infuse::trust::%uuid of shooter%::%uuid of event-entity%} is not set
+        add 1 to {-infuse::transient::%uuid of event-entity%::ender_cursed}
+        cooldown_end(shooter, "ender")
+        run {-infuse::config::ender::curse_duration} later:
+            subtract 1 from {-infuse::transient::%uuid of event-entity%::ender_cursed}
+            if {-infuse::transient::%uuid of event-entity%::ender_cursed} < 0:
+                set {-infuse::transient::%uuid of event-entity%::ender_cursed} to 0
+
     event-projectile is trident
     if has_infuse(shooter, "ocean") is true:
         set {_dist} to distance between shooter and event-entity
@@ -80,8 +102,7 @@ on projectile collide:
             play sound "block.bubble_column.upwards_inside" with volume 1 at event-entity
             play sound "block.bubble_column.upwards_inside" with volume 1 at shooter
             set item cooldown of trident for shooter to 5 seconds
-                
-        
+
     if has_infuse(shooter, "thunder") is true:
         strike lightning effect at event-entity
         true_damage(shooter, event-entity, {-infuse::config::thunder::true_damage})

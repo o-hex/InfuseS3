@@ -35,7 +35,6 @@ function set_infuse(p: player, s: text, e: text, a: boolean):
             remove invisibility from {_p}
         else if {_o} is "regeneration":
             remove regeneration from {_p}
-            remove saturation from {_p}
         else if {_o} is "speed":
             remove attribute modifier with key "infuse:speed_effect" from {_p}
             remove attribute modifier with key "infuse:speed_stack" from {_p}
@@ -69,7 +68,6 @@ function set_infuse(p: player, s: text, e: text, a: boolean):
                 hide the icon
         else if {_e} is "regeneration":
             apply infinite ambient potion effect of regeneration of tier 1 to {_p}
-            apply infinite ambient potion effect of saturation of tier 1 to {_p}
         else if {_e} is "speed":
             apply transient attribute modifier to {_p}:
                 attribute: generic movement speed

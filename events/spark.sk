@@ -278,6 +278,29 @@ function spark_start(p: player, s: text, st: number, c: number):
             id: "infuse:haste_spark"
             amount: 1024
             operation: multiply_scalar_1
+    
+    if {_e} is "ender":
+        if distance between {_p} and target block of {_p} <= {-infuse::config::ender::teleport_max_radius}:
+            set {_l} to location 0.5 blocks above target block of {_p}
+        else:
+            set {_l} to location 0.5 blocks up and {-infuse::config::ender::teleport_max_radius} blocks in front of {_p}
+        force draw (20 end rod particles with an extra value of 0.5) at middle({_p})
+        teleport {_p} to location(x of {_l}, y of {_l}, z of {_l}, world of {_l}, yaw of {_p}, pitch of {_p})
+        force draw (30 rgb(138, 51, 162) dust particles of size 3 with offset vector(0.5,1,0.5) with an extra value of 0.5) at middle({_p})
+        loop all players in radius 2 of {_p}:
+            loop-player is not {_p}
+            {infuse::trust::%uuid of {_p}%::%uuid of loop-player%} is not set
+            if ({infuse::active::%uuid of {_p}%::ender::s} ? 0) <= 0:
+                if ({infuse::active::%uuid of {_p}%::ender::c} ? 0) > 0:
+                    cooldown_end({_p}, "ender")
+            add 1 to {-infuse::transient::%uuid of loop-player%::ender_cursed}
+            run {-infuse::config::ender::curse_duration} later:
+                subtract 1 from {-infuse::transient::%uuid of loop-player%::ender_cursed}
+                if {-infuse::transient::%uuid of loop-player%::ender_cursed} < 0:
+                    set {-infuse::transient::%uuid of loop-player%::ender_cursed} to 0
+        loop all mobs in radius 2 of {_p}:
+            if loop-entity is not ender dragon, wither or warden:
+                kill loop-entity
 
 function spark_end(p: player, e: text):
     if has_spark({_p}, {_e}) is true:

@@ -200,6 +200,14 @@ on damage of player by player:
                 subtract 1 from {-infuse::transient::%uuid of victim%::freeze_stacks}
                 if {-infuse::transient::%uuid of victim%::freeze_stacks} < 0:
                     set {-infuse::transient::%uuid of victim%::freeze_stacks} to 0
+
+    if has_infuse(attacker, "ender") is true:
+        if {-infuse::transient::%uuid of victim%::ender_cursed} > 0:
+            loop all players:
+                if {-infuse::transient::%uuid of loop-entity%::ender_cursed} > 0:
+                    set metadata "isolate_hit" of attacker to true
+                    make attacker damage loop-entity by damage
+                    set metadata "isolate_hit" of attacker to false
                
 #                                                                             ┓       
 #                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━

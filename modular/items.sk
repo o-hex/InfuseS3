@@ -180,6 +180,20 @@ function get_item(e: text, a: boolean, ei: boolean = false) :: item:
         set {_st} to "<#6F1616>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
         add text component of "<#9E2020>🛡 <#6D6D6D>All attacks are critical" to {_s_lore::*}
     
+    else if {_e} is "ender":
+        set {_a} to true
+        set {_n} to "<#831177>Ender Effect"
+        set {_color} to rgb(131, 17, 119)
+        set {_cmd} to 414013
+        set {_pt} to "<#831177>ᴘᴀꜱꜱɪᴠᴇ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#541351>⭐ <#6D6D6D>All nearby untrusted players have glowing" to {_lore::*}
+        add text component of "<#541351>⭐ <#6D6D6D>Use dragon's breath to shoot powerful fireballs that curse players" to {_lore::*}
+        add text component of "<#541351>⭐ <#6D6D6D>Curse untrusted players on hit which shares damage with all cursed players" to {_lore::*}
+        set {_st} to "<#831177>ꜱᴘᴀʀᴋ ᴇꜰꜰᴇᴄᴛꜱ:"
+        add text component of "<#541351>⭐ <#6D6D6D>Teleport to the cursor position within a 15 block radius" to {_s_lore::*}
+        add text component of "<#541351>⭐ <#6D6D6D>Instantly kills any mob and curses players" to {_s_lore::*}
+        add text component of "<#541351>⭐ <#6D6D6D>Cursing a player resets the spark cooldown" to {_s_lore::*}
+
     set {_i} to potion named text component of {_n} with item flag hide additional tooltip
     
     if {_a} is true:
