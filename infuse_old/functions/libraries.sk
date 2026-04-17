@@ -1,0 +1,249 @@
+#  ███       ███       ███             ██████                                  █████     ███                                       
+# ▒▒▒███    ▒▒▒███    ▒▒▒███          ███▒▒███                                ▒▒███     ▒▒▒                                        
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███       ▒███ ▒▒▒  █████ ████ ████████    ██████  ███████   ████   ██████  ████████    █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ███████   ▒▒███ ▒███ ▒▒███▒▒███  ███▒▒███▒▒▒███▒   ▒▒███  ███▒▒███▒▒███▒▒███  ███▒▒            
+#      ███▒      ███▒      ███▒    ▒▒▒███▒     ▒███ ▒███  ▒███ ▒███ ▒███ ▒▒▒   ▒███     ▒███ ▒███ ▒███ ▒███ ▒███ ▒▒█████           
+#    ███▒      ███▒      ███▒        ▒███      ▒███ ▒███  ▒███ ▒███ ▒███  ███  ▒███ ███ ▒███ ▒███ ▒███ ▒███ ▒███  ▒▒▒▒███          
+#  ███▒      ███▒      ███▒          █████     ▒▒████████ ████ █████▒▒██████   ▒▒█████  █████▒▒██████  ████ █████ ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒           ▒▒▒▒▒       ▒▒▒▒▒▒▒▒ ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒     ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███ ████   ███  █████                                    ███                   ███      
+#      ███▒ ▒▒███  ▒▒▒  ▒▒███                                    ▒▒▒                   ▒▒▒███    
+#    ███▒    ▒███  ████  ▒███████  ████████   ██████   ████████  ████   ██████   █████   ▒▒▒███  
+#  ███▒      ▒███ ▒▒███  ▒███▒▒███▒▒███▒▒███ ▒▒▒▒▒███ ▒▒███▒▒███▒▒███  ███▒▒███ ███▒▒      ▒▒▒███
+# ▒▒▒███     ▒███  ▒███  ▒███ ▒███ ▒███ ▒▒▒   ███████  ▒███ ▒▒▒  ▒███ ▒███████ ▒▒█████      ███▒ 
+#   ▒▒▒███   ▒███  ▒███  ▒███ ▒███ ▒███      ███▒▒███  ▒███      ▒███ ▒███▒▒▒   ▒▒▒▒███   ███▒   
+#     ▒▒▒███ █████ █████ ████████  █████    ▒▒████████ █████     █████▒▒██████  ██████  ███▒     
+#       ▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒▒▒  ▒▒▒▒▒      ▒▒▒▒▒▒▒▒ ▒▒▒▒▒     ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒       
+
+
+function line(old_pos: location, new_pos: location, iter: integer=10) :: locations:
+    set {_vect} to vector between {_old_pos} and {_new_pos}
+    loop {_iter} times:
+        set vector length of {_vect} to loop-integer/{_iter} * (distance between {_old_pos} and {_new_pos})
+        add ({_old_pos} ~ {_vect}) to {_return::*}
+    return {_return::*}
+    
+function circle(center: location, radius: number, iter: integer, bdir: vector, angle: integer=0) :: locations:
+    set {_f} to normalized {_bdir}
+    set {_r} to vector(1, 0, 0) if (abs(y of {_f}) > 0.9) else (normalized ({_f} cross vector(0, 1, 0)))
+    set {_u} to normalized ({_r} cross {_f})
+    
+    set {_r} to {_r} * {_radius}
+    set {_u} to {_u} * {_radius}
+    set {_step} to 360 / {_iter}
+    
+    loop {_iter} times:
+        set {_a} to ((loop-number) - 1) * {_step} + {_angle}
+        add ({_center} ~ (({_r} * cos({_a})) + ({_u} * sin({_a})))) to {_res::*}
+    return {_res::*}
+    
+# function circle(center: location, radius: number, iter: integer, bdir: vector, angle: integer=0) :: locations: # faster one that uses the spherical vectors from skript
+#     set {_yaw} to yaw of {_bdir}
+#     set {_pitch} to (pitch of {_bdir}) + 90
+#     set {_step} to 360 / {_iter}
+#     loop {_iter} times:
+#         set {_rot} to ((loop-number - 1) * {_step}) + {_angle}
+#         set {_v} to spherical vector radius {_radius}, yaw ({_yaw} + {_rot}), pitch {_pitch}
+#         add ({_center} ~ {_v}) to {_res::*}
+#     return {_res::*}
+
+function midpoint(old_pos: location, new_pos: location) :: location:
+    set {_vect} to vector between {_old_pos} and {_new_pos}
+    set vector length of {_vect} to (distance between {_old_pos} and {_new_pos}) / 2
+    return ({_old_pos} ~ {_vect})
+
+function middle(e: entity) :: location:
+    return midpoint(location of {_e}, eye of {_e})
+
+# function helix(center: location, radius: number, height: number, iter: integer, bdir: vector, angle: number=0) :: locations:
+#     set {_f} to normalized {_bdir}
+#     if abs(y of {_f}) > 0.9:
+#         set {_r} to normalized ({_f} cross vector(1, 0, 0))
+#     else:
+#         set {_r} to normalized ({_f} cross vector(0, 1, 0))
+#     set {_u} to normalized ({_r} cross {_f})
+#     set {_step} to 360 / {_iter}
+#     if {_iter} > 1:
+#         set {_distStep} to {_height} / ({_iter} - 1)
+#     else:
+#         set {_distStep} to 0
+    
+#     loop {_iter} times:
+#         set {_i} to (loop-number) - 1
+#         set {_a} to ({_i} * {_step}) + {_angle}
+#         set {_vR} to {_r} * ({_radius} * cos({_a}))
+#         set {_vU} to {_u} * ({_radius} * sin({_a}))
+#         set {_vF} to {_f} * ({_i} * {_distStep})
+
+#         add ({_center} ~ ({_vR} + {_vU} + {_vF})) to {_res::*}
+#     return {_res::*}
+
+function helix(center: location, radius: number, height: number, iter: integer, bdir: vector, angle: number=0) :: locations:
+    set {_f} to normalized {_bdir}
+    if abs(y of {_f}) > 0.9:
+        set {_r} to normalized ({_f} cross vector(1, 0, 0))
+    else:
+        set {_r} to normalized ({_f} cross vector(0, 1, 0))
+    set {_u} to normalized ({_r} cross {_f})
+    set {_step} to 360 / {_iter}
+    set {_distStep} to ({_height} / ({_iter} - 1)) if ({_iter} > 1) else 0
+    loop {_iter} times:
+        set {_i} to (loop-number - 1)
+        set {_deg} to ({_i} * {_step}) + {_angle}
+        set {_offset} to ({_r} * ({_radius} * cos({_deg}))) + ({_u} * ({_radius} * sin({_deg}))) + ({_f} * ({_i} * {_distStep}))
+        add ({_center} ~ {_offset}) to {_res::*}
+        
+    return {_res::*}
+
+# function spiral(center: location, radius: number, incr: number, iter: integer, bdir: vector, angle: number=0) :: locations:
+#     set {_f} to normalized {_bdir}
+#     set {_r} to vector(1, 0, 0) if abs(y of {_f}) > 0.9 else (normalized ({_f} cross vector(0, 1, 0)))
+#     set {_u} to normalized ({_r} cross {_f})
+#     set {_degStep} to 6
+    
+#     loop {_iter} times:
+#         set {_i} to (loop-number) - 1
+#         set {_a} to ({_i} * {_degStep}) + {_angle}
+#         set {_currentRadius} to {_radius} + ({_i} * {_incr})
+
+#         set {_vR} to {_r} * ({_currentRadius} * cos({_a}))
+#         set {_vU} to {_u} * ({_currentRadius} * sin({_a}))
+
+#         add ({_center} ~ ({_vR} + {_vU})) to {_res::*}
+#     return {_res::*}
+
+function spiral(center: location, radius: number, incr: number, iter: integer, bdir: vector, angle: number=0) :: locations:
+    set {_f} to normalized {_bdir}
+    if abs(y of {_f}) > 0.9:
+        set {_r} to normalized ({_f} cross vector(1, 0, 0))
+    else:
+        set {_r} to normalized ({_f} cross vector(0, 1, 0))
+    set {_u} to normalized ({_r} cross {_f})
+    set {_degStep} to 6
+    
+    loop {_iter} times:
+        set {_i} to loop-number - 1
+        set {_deg} to ({_i} * {_degStep}) + {_angle}
+        set {_curR} to {_radius} + ({_i} * {_incr})
+        set {_offset} to ({_r} * ({_curR} * cos({_deg}))) + ({_u} * ({_curR} * sin({_deg})))
+        add ({_center} ~ {_offset}) to {_res::*}
+        
+    return {_res::*}
+
+# function flat_circle(center: location, radius: number, rotation: number, iter: integer=10) :: locations:
+#     set {_step} to 360 / {_iter}
+#     loop {_iter} times:
+#         set {_a} to (((loop-number) - 1) * {_step}) + {_rotation}
+#         set {_x} to {_radius} * cos({_a})
+#         set {_z} to {_radius} * sin({_a})
+#         add (location({_x}, 1.5, {_z}, world of {_center}) ~ {_center}) to {_res::*}
+#     return {_res::*}
+
+function flat_circle(center: location, radius: number, rotation: number, iter: integer=10) :: locations:
+    set {_step} to 360 / {_iter}
+    loop {_iter} times:
+        set {_a} to ((loop-number - 1) * {_step}) + {_rotation}
+        set {_v} to spherical vector radius {_radius}, yaw {_a}, pitch 0
+        add ({_center} ~ {_v}) to {_res::*}
+    return {_res::*}
+
+function bounce(t: number) :: number:
+    if {_t} < 0.363636:
+        return  7.5625 * {_t} * {_t}
+    else if {_t} < 0.727273:
+        set {_t} to {_t} - 0.545455
+        return  7.5625 * {_t} * {_t} + 0.75
+    else if {_t} < 0.909091:
+        set {_t} to {_t} - 0.818182
+        return 7.5625 * {_t} * {_t} + 0.9375
+    else:
+        set {_t} to {_t} - 0.954545
+        return 7.5625 * {_t} * {_t} + 0.984375
+
+function elastic(t: number) :: number:
+    if {_t} = 0:
+        return 0
+    if {_t} = 1:
+        return 1
+    
+    set {_p} to 0.3
+    set {_s} to {_p} / 4
+    set {_t} to {_t} - 1
+
+    set {_power} to 2 ^ (10 * {_t})
+    set {_angle} to ({_t} - {_s}) * (2 * 3.14159) / {_p}
+    set {_sin} to sin({_angle})
+    
+    return -1 * {_power} * {_sin}
+    
+function interpolate(start: number, end: number, steps: number, easing: text = "linear") :: numbers:
+    set {_delta} to {_end} - {_start}
+    
+    loop {_steps} times:
+        set {_t} to ((loop-number) - 1) / ({_steps} - 1)
+
+        if {_easing} is "linear":
+            set {_factor} to {_t}
+        else if {_easing} is "easein":
+            set {_factor} to {_t} * {_t} * {_t}
+        else if {_easing} is "easeout":
+            set {_temp} to 1 - {_t}
+            set {_factor} to 1 - ({_temp} * {_temp} * {_temp})
+        else if {_easing} is "easeinout":
+            if {_t} < 0.5:
+                set {_factor} to 4 * {_t} * {_t} * {_t}
+            else:
+                set {_temp} to -2 * {_t} + 2
+                set {_factor} to 1 - ({_temp} * {_temp} * {_temp} / 2)
+        else if {_easing} is "bounce":
+            set {_factor} to bounce({_t})
+        else if {_easing} is "elastic":
+            set {_factor} to elastic({_t})
+        else:
+            set {_factor} to {_t}
+
+        set {_value} to {_start} + ({_delta} * {_factor})
+        add {_value} to {_result::*}
+    
+    return {_result::*}
+
+function horn(center: location, r: number, h: number, s: integer, pps: integer) :: locations:
+    set {_bdir} to vector(0, 1, 0)
+    loop {_s} times:
+        set {_i} to loop-number
+        set {_progress} to ({_i} - 1) / ({_s} - 1)
+        set {_x_val} to 1 + ({_progress} * 4) 
+        set {_current_radius} to {_r} / {_x_val}
+        set {_y_offset} to {_progress} * {_h}
+        set {_slice_center} to {_center} ~ vector(0, {_y_offset}, 0)
+        set {_circle_points::*} to circle({_slice_center}, {_current_radius}, {_pps}, {_bdir})
+        add {_circle_points::*} to {_res::*}
+        
+    return {_res::*}
+
+function heart(center: location, scale: number, iter: integer=50, bdir: vector) :: locations:
+    set {_f} to normalized {_bdir}
+    if abs(y of {_f}) > 0.9:
+        set {_r} to vector(1, 0, 0) 
+    else:
+        set {_r} to (normalized ({_f} cross vector(0, 1, 0)))
+    set {_u} to normalized ({_r} cross {_f})
+    set {_step} to 360 / {_iter}
+    loop {_iter} times:
+        set {_deg} to ((loop-number) - 1) * {_step}       
+        set {_x} to 16 * (sin({_deg}) ^ 3)
+        set {_y} to 13 * cos({_deg}) - 5 * cos(2 * {_deg}) - 2 * cos(3 * {_deg}) - cos(4 * {_deg})
+
+        set {_vR} to {_r} * ({_x} * {_scale})
+        set {_vU} to {_u} * ({_y} * {_scale})
+        
+        add ({_center} ~ ({_vR} + {_vU})) to {_res::*}
+    return {_res::*}
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

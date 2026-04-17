@@ -1,0 +1,354 @@
+#  ███       ███       ███                                                    █████                     
+# ▒▒▒███    ▒▒▒███    ▒▒▒███                                                 ▒▒███                      
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███       ██████  █████ █████  ██████  ████████   ███████    █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ███▒▒███▒▒███ ▒▒███  ███▒▒███▒▒███▒▒███ ▒▒▒███▒    ███▒▒            
+#      ███▒      ███▒      ███▒    ▒███████  ▒███  ▒███ ▒███████  ▒███ ▒███   ▒███    ▒▒█████           
+#    ███▒      ███▒      ███▒      ▒███▒▒▒   ▒▒███ ███  ▒███▒▒▒   ▒███ ▒███   ▒███ ███ ▒▒▒▒███          
+#  ███▒      ███▒      ███▒        ▒▒██████   ▒▒█████   ▒▒██████  ████ █████  ▒▒█████  ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒           ▒▒▒▒▒▒     ▒▒▒▒▒     ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒    ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███                                       █████      ███      
+#      ███▒                                       ▒▒███      ▒▒▒███    
+#    ███▒     █████  ████████   ██████   ████████  ▒███ █████  ▒▒▒███  
+#  ███▒      ███▒▒  ▒▒███▒▒███ ▒▒▒▒▒███ ▒▒███▒▒███ ▒███▒▒███     ▒▒▒███
+# ▒▒▒███    ▒▒█████  ▒███ ▒███  ███████  ▒███ ▒▒▒  ▒██████▒       ███▒ 
+#   ▒▒▒███   ▒▒▒▒███ ▒███ ▒███ ███▒▒███  ▒███      ▒███▒▒███    ███▒   
+#     ▒▒▒███ ██████  ▒███████ ▒▒████████ █████     ████ █████ ███▒     
+#       ▒▒▒ ▒▒▒▒▒▒   ▒███▒▒▒   ▒▒▒▒▒▒▒▒ ▒▒▒▒▒     ▒▒▒▒ ▒▒▒▒▒ ▒▒▒       
+#                    ▒███                                              
+#                    █████                                             
+#                   ▒▒▒▒▒                                              
+
+function spark_start(p: player, s: text, st: number, c: number):
+    set {_u} to uuid of {_p}
+    set {_e} to {infuse::stats::%{_u}%::%{_s}%}
+    ({infuse::active::%{_u}%::%{_e}%::s} ? 0) + ({infuse::active::%{_u}%::%{_e}%::c} ? 0) <= 0
+    {infuse::disabled::%{_u}%} is not set
+    # set {_a} to {infuse::stats::%{_u}%::%{_s}%::a} ? false
+    # set {_c} to ({_c} / 2) if {_a} is true
+    # set {infuse::active::%{_u}%::%{_e}%::a} to {_a}
+
+    set {infuse::active::%{_u}%::%{_e}%::p} to {_c}
+    set {infuse::active::%{_u}%::%{_e}%::s_m} to {_st}
+    set {infuse::active::%{_u}%::%{_e}%::s} to {_st}
+
+    play sound {-infuse::config::use_sound} with pitch 1 to {_p}
+    draw_spark({_p}, {_e})
+
+    if {_e} is "heart":
+        set max health of {_p} to {-infuse::config::heart::spark_hearts}
+        heal {_p} by {-infuse::transient::%{_u}%::recent_damage} * {-infuse::config::heart::spark_heal_percentage}
+
+    if {_e} is "fire":
+        fire_spark_1({_p})
+        set {_sc} to sphere_int(middle({_p}), {-infuse::config::fire::ignite_radius})
+        loop all players in radius {-infuse::config::fire::ignite_radius} around {_p}:
+            if loop-player is not {_p}:
+                if {_sc} is true:
+                    if loc_int(location of loop-player) is true:
+                        continue
+                {infuse::trust::%uuid of {_p}%::*} does not contain loop-player 
+                ignite loop-player for {-infuse::config::fire::ignite_duration}
+                push loop-player upwards with force {-infuse::config::fire::launch_power}
+
+        loop {-infuse::config::fire::spark}/10 times:
+            clear {_blocks::*}
+            clear {_blocks_2::*}
+            clear {_blocks_location::*}
+            clear {_blocks_location_2::*}
+
+            set {_sc} to sphere_int(middle({_p}), {-infuse::config::fire::burn_radius})
+            loop all blocks in radius {-infuse::config::fire::burn_radius} around {_p}:
+                if {_sc} is true:
+                    if loc_int(location of loop-block) is true:
+                        continue
+                if loop-block contains water or cobweb:
+                    add loop-block to {_blocks::*}
+                    add location of loop-block to {_blocks_location::*}
+                else if loop-block contains air:
+                    chance of 2%:
+                        add loop-block to {_blocks_2::*}
+                        
+                # if {-infuse::flags::flammable_blocks::*} contains loop-block:
+                #     add loop-block to {_blocks_2::*}
+            
+            update {_blocks::*} to be air
+            update {_blocks_2::*} to be fire
+            force draw (1 gray dust particles of size 5 with an extra value of 0.5) at {_blocks_location::*}
+            play sound "block.lava.extinguish" at {_p}
+            wait 10 ticks
+    
+    if {_e} is "thunder":
+        set {_c} to 0
+        set {_sc} to sphere_int(middle({_p}), 20)
+        loop all mobs and players in radius 20 around {_p}:
+            if loop-entity is not {_p}:
+                if {_sc} is true:
+                    if loc_int(location of loop-entity) is true:
+                        continue
+                {infuse::trust::%uuid of {_p}%::*} does not contain loop-entity
+                add 1 to {_c}
+        force draw (1 flame particles with an extra value of 0.05) at circle(location of {_p}, min(({_c} * 3) + 3, 20), 80, vector(0,1,0))
+        loop all mobs and players in radius min(({_c} * 3) + 3, 20) around {_p}:
+            if loop-entity is not {_p}:
+                if {_sc} is true:
+                    if loc_int(location of loop-entity) is true:
+                        continue
+                {infuse::trust::%uuid of {_p}%::*} does not contain loop-entity
+                strike_thunder({_p}, loop-entity)
+        
+    if {_e} is "emerald":
+        apply infinite ambient potion effect of hero of the village of tier 5 to {_p}
+
+    if {_e} is "ocean":
+        set {_l} to location of middle({_p})
+        loop {-infuse::config::ocean::pull_iteration} times:
+            set {_sc} to sphere_int(middle({_p}), {-infuse::config::ocean::pull_radius})
+            loop all players in radius {-infuse::config::ocean::pull_radius} around {_p}:
+                if loop-player is not {_p}:
+                    if {_sc} is true:
+                        if loc_int(location of loop-player) is true:
+                            continue
+                    {infuse::trust::%uuid of {_p}%::*} does not contain loop-player
+                    set {_v} to vector between middle(loop-player) and {_l}
+                    set vector length of {_v} to {-infuse::config::ocean::pull_strength}
+                    # set y of {_v} to 0.1
+                    push loop-player {_v}
+            wait {-infuse::config::ocean::pull_interval}
+
+    if {_e} is "invisibility":
+        hide {_p} from all players
+        clear {_affected::*}
+        add uuid of {_p} to {-infuse::transient::%uuid of {_p}%::invis::*}
+        loop flat_circle(middle({_p}), 1, {_i}, 80):
+            set {_n} to (vector from middle({_p}) to loop-location)
+            force draw (0 end rod particles with an offset {_n}) at middle({_p})
+
+        loop {-infuse::config::invisibility::invis_iteration} times:
+            if {_p} is not online:
+                exit loop
+
+            set {_tc} to 0
+            set {_sc} to sphere_int(middle({_p}), {-infuse::config::invisibility::max_spark_radius})
+            loop all players in radius {-infuse::config::invisibility::max_spark_radius} around {_p}:
+                if {infuse::trust::%uuid of {_p}%::%uuid of loop-player%} is set:
+                    if loop-player is not {_p}:
+                        if {_sc} is true:
+                            if loc_int(location of loop-player) is true:
+                                continue
+                        add 1 to {_tc}
+
+            set {_dynrad} to min({-infuse::config::invisibility::base_spark_radius} + ({_tc} * {-infuse::config::invisibility::teammate_coefficient}), {-infuse::config::invisibility::max_spark_radius})
+            set {_sc} to sphere_int(middle({_p}), {_dynrad})
+            loop all players in radius {_dynrad} around {_p}:
+                if {infuse::trust::%uuid of {_p}%::%uuid of loop-player%} is set:
+                    if loop-player is not {_p}:
+                        if {_sc} is true:
+                            if loc_int(location of loop-player) is true:
+                                if {-infuse::transient::%uuid of loop-player%::invis::*} contains uuid of {_p}:
+                                    reveal loop-player to all players
+                                    remove uuid of {_p} from {-infuse::transient::%uuid of loop-player%::invis::*}
+                                    remove loop-player from {_affected::*}
+                                    continue
+
+                        apply potion effect of invisibility of tier 1 to loop-player for 1 second
+                        apply potion effect of glowing of tier 1 to loop-player for 1 second
+                        if {-infuse::transient::%uuid of loop-player%::invis::*} does not contain uuid of {_p}:
+                            hide loop-player from all players except {_p}
+                            add uuid of {_p} to {-infuse::transient::%uuid of loop-player%::invis::*}
+                            add loop-player to {_affected::*}
+
+            loop {_affected::*}:
+                if distance between loop-value-2 and {_p} > {_dynrad}:
+                    remove uuid of {_p} from {-infuse::transient::%uuid of loop-value-2%::invis::*}
+                    if size of {-infuse::transient::%uuid of loop-value-2%::invis::*} is 0:
+                        reveal loop-value-2 to all players
+                    remove loop-value-2 from {_affected::*}
+
+            force draw (3 squid ink particles with an offset of vector(0.5, 1, 0.5) with an extra value of 0) at flat_circle(middle({_p}), {_dynrad}, 0, 160)
+
+            wait {-infuse::config::invisibility::invis_interval}
+
+        remove uuid of {_p} from {-infuse::transient::%uuid of {_p}%::invis::*}
+        if size of {-infuse::transient::%uuid of {_p}%::invis::*} is 0:
+            reveal {_p} to all players
+
+        loop {_affected::*}:
+            remove uuid of {_p} from {-infuse::transient::%uuid of loop-value%::invis::*}
+            if size of {-infuse::transient::%uuid of loop-value%::invis::*} is 0:
+                reveal loop-value to all players
+
+    if {_e} is "regeneration":
+        set {_total_heal} to {-infuse::transient::%{_u}%::recent_damage} * {-infuse::config::regeneration::spark_heal_percentage}
+        set {_hpu} to {_total_heal} / {-infuse::config::regeneration::spark_heal_iteration}
+        loop {-infuse::config::regeneration::spark_heal_iteration} times:
+            if {_p} is not online:
+                stop loop
+
+            heal {_p} by {_hpu}
+            force draw (3 red dust particles of size 3 with an extra value of 0.2) at middle({_p})
+            force draw (1 trial spawner detection particles with an extra value of 0) at flat_circle({_p}, {-infuse::config::regeneration::spark_heal_radius}, 0, 120)
+            set {_sc} to sphere_int(middle({_p}), {-infuse::config::regeneration::spark_heal_radius})
+            loop all players in radius {-infuse::config::regeneration::spark_heal_radius} around {_p}:
+                if loop-player is not {_p}:
+                    if {_sc} is true:
+                        if loc_int(location of loop-player) is true:
+                            continue
+                    if {infuse::trust::%uuid of {_p}%::%uuid of loop-player%} is set:
+                        heal loop-player by {_hpu}
+            
+            wait {-infuse::config::regeneration::spark_heal_interval}
+
+
+    if {_e} is "speed":
+        set {_d} to vector from yaw {_p}'s yaw and pitch {_p}'s pitch # dash anywhere you wanna go? or just set it to pitch 0 for horizontal only
+        set {_d2} to vector(x of {_d}, y of {_d} * {-infuse::config::speed::dash_damping}, z of {_d})
+
+        set velocity of {_p} to {_d2} * {-infuse::config::speed::dash_power}
+        
+        loop {-infuse::config::speed::dash_iteration} times:
+            force draw (4 black dust particle of size 2 with offset vector(0.3,0.5,0.3) with an extra value of 0) at location of {_p}
+            force draw (8 flame particle with offset vector(0.2,0,0.2) with an extra value of 0.05) at location of {_p}
+            loop all mobs and players in radius {-infuse::config::speed::dash_effect_radius} around {_p}:
+                loop-entity is not {_p}
+                {_targets::%uuid of loop-entity%} is not set
+                true_damage({_p}, loop-entity, {-infuse::config::speed::dash_true_damage})
+                set {_targets::%uuid of loop-entity%} to true
+                force draw (8 sweep attack particle with offset vector(0.5,1,0.5)) at middle(loop-entity)
+                play sound "entity.player.attack.sweep" at loop-entity
+            wait {-infuse::config::speed::dash_interval}
+
+    if {_e} is "feather":
+        set {_v} to velocity of {_p}
+        set y of {_v} to 0
+        set velocity of {_p} to {_v}
+        push {_p} upwards with force {-infuse::config::feather::initial_bounce_power}
+        # push {_p} downwards with force 2
+        set {_counter} to 0
+        while {_p} is on ground:
+            add 1 to {_counter}
+            if {_counter} > 100:
+                stop
+            if {_p} is not online:
+                stop
+            wait 1 tick
+
+        set {_m} to 0
+        while {_p} is not on ground:
+            if {_p} is not online:
+                stop
+            if fall distance of {_p} > {_m}:
+                set {_m} to fall distance of {_p}
+            if block at {_p} is vine, ladder or twisting vines:
+                stop
+            wait 1 ticks
+            
+        if {_m} <= {-infuse::config::feather::fall_trigger_threshold}:
+            stop
+        set {_r} to clamp(({_m} / 4), {-infuse::config::feather::min_shockwave_radius}, {-infuse::config::feather::max_shockwave_radius})
+        set {_o} to location of {_p}
+        play sound "item.mace.smash_ground_heavy" with volume 1 and pitch 1 at {_o}
+
+        set {_sc} to sphere_int(middle({_p}), {_r})
+        loop all mobs and players in radius {_r} of {_p}:
+            loop-entity is not {_p}
+            if {_sc} is true:
+                if loc_int(location of loop-entity) is true:
+                    continue
+            true_damage({_p}, loop-entity, {-infuse::config::feather::shockwave_true_damage})
+            apply potion effect of slow falling of tier 1 to loop-entity for {-infuse::config::feather::slow_falling_duration}
+            
+        if {_p} is not sneaking:
+            set {_d} to vector from yaw {_p}'s yaw and pitch {_p}'s pitch
+            set velocity of {_p} to {_d} * {_r} / {-infuse::config::feather::bounce_coefficient}
+
+        loop interpolate(1, {_r}, {-infuse::config::feather::shockwave_rings}, "easeout"):
+            force draw (1 of gray dust particles of size 2 with extra value of 0) at flat_circle({_o}, loop-value, 0, 60)
+            wait {-infuse::config::feather::shockwave_draw_interval}
+
+    if {_e} is "haste":
+        apply transient attribute modifier to {_p}:
+            attribute: generic attack speed
+            id: "infuse:atkspd_spark"
+            amount: {-infuse::config::haste::spark_atkspd_increase}
+            operation: multiply_scalar_1
+
+        apply transient attribute modifier to {_p}:
+            attribute: block break speed
+            id: "infuse:haste_spark"
+            amount: 1024
+            operation: multiply_scalar_1
+    
+    if {_e} is "ender":
+        if distance between {_p} and target block of {_p} <= {-infuse::config::ender::teleport_max_radius}:
+            set {_l} to location 0.5 blocks above target block of {_p}
+        else:
+            set {_l} to location (0.5 blocks up) and {-infuse::config::ender::teleport_max_radius} blocks in front of {_p}
+        force draw (20 end rod particles with an extra value of 0.5) at middle({_p})
+        teleport {_p} to location(x of {_l}, y of {_l}, z of {_l}, world of {_l}, yaw of {_p}, pitch of {_p})
+        force draw (30 rgb(138, 51, 162) dust particles of size 3 with offset vector(0.5,1,0.5) with an extra value of 0.5) at middle({_p})
+        loop all players in radius 2 of {_p}:
+            loop-player is not {_p}
+            {infuse::trust::%uuid of {_p}%::%uuid of loop-player%} is not set
+            if ({infuse::active::%uuid of {_p}%::ender::s} ? 0) <= 0:
+                if ({infuse::active::%uuid of {_p}%::ender::c} ? 0) > 0:
+                    cooldown_end({_p}, "ender")
+            add 1 to {-infuse::transient::%uuid of loop-player%::ender_cursed}
+            run {-infuse::config::ender::curse_duration} later:
+                subtract 1 from {-infuse::transient::%uuid of loop-player%::ender_cursed}
+                if {-infuse::transient::%uuid of loop-player%::ender_cursed} < 0:
+                    set {-infuse::transient::%uuid of loop-player%::ender_cursed} to 0
+        loop all mobs in radius 2 of {_p}:
+            if loop-entity is not ender dragon, wither or warden:
+                kill loop-entity
+
+function spark_end(p: player, e: text):
+    if has_spark({_p}, {_e}) is true:
+        set {infuse::active::%uuid of {_p}%::%{_e}%::s} to 0
+
+    cooldown_start({_p}, {_e})
+
+    if {_e} is "heart":
+        set max health of {_p} to 15
+
+    if {_e} is "emerald":
+        remove hero of the village from {_p} # the listener will re-apply it if needed
+    
+    if {_e} is "haste":
+        remove attribute modifier with key "infuse:atkspd_spark" from {_p}
+        remove attribute modifier with key "infuse:haste_spark" from {_p}
+                                                                                                      
+
+# ┏┓┏┓┏┓┓ ┳┓┏┓┓ ┏┳┓
+# ┃ ┃┃┃┃┃ ┃┃┃┃┃┃┃┃┃
+# ┗┛┗┛┗┛┗┛┻┛┗┛┗┻┛┛┗
+
+function cooldown_start(p: player, e: text):
+    set {_u} to uuid of {_p}
+    set {_base} to {infuse::active::%{_u}%::%{_e}%::p}
+    set {_pt} to 0
+    loop "primary" and "secondary":
+        if {infuse::stats::%{_u}%::%loop-value%} is {_e}:
+            add 1 to {_pt}
+            if {infuse::stats::%{_u}%::%loop-value%::a} is true:
+                add 1 to {_pt}
+
+    set {_dvs::*} to 1, 2, 3 and 4
+    set {_den} to {_dvs::%{_pt}%} ? 1
+
+    set {_cd} to floor({_base} / {_den})
+    set {infuse::active::%{_u}%::%{_e}%::c} to {_cd}
+    set {infuse::active::%{_u}%::%{_e}%::c_m} to {_cd}
+
+function cooldown_end(p: player, e: text):
+    if ({infuse::active::%uuid of {_p}%::%{_e}%::c} ? 0) > 0:
+        set {infuse::active::%uuid of {_p}%::%{_e}%::c} to 0
+    play sound {-infuse::config::recharge_sound} with pitch 1 to {_p}
+
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

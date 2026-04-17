@@ -1,0 +1,128 @@
+#  ███       ███       ███          ████   ███           █████                                                            
+# ▒▒▒███    ▒▒▒███    ▒▒▒███       ▒▒███  ▒▒▒           ▒▒███                                                             
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███      ▒███  ████   █████  ███████    ██████  ████████    ██████  ████████   █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ▒███ ▒▒███  ███▒▒  ▒▒▒███▒    ███▒▒███▒▒███▒▒███  ███▒▒███▒▒███▒▒███ ███▒▒            
+#      ███▒      ███▒      ███▒     ▒███  ▒███ ▒▒█████   ▒███    ▒███████  ▒███ ▒███ ▒███████  ▒███ ▒▒▒ ▒▒█████           
+#    ███▒      ███▒      ███▒       ▒███  ▒███  ▒▒▒▒███  ▒███ ███▒███▒▒▒   ▒███ ▒███ ▒███▒▒▒   ▒███      ▒▒▒▒███          
+#  ███▒      ███▒      ███▒         █████ █████ ██████   ▒▒█████ ▒▒██████  ████ █████▒▒██████  █████     ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒          ▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒     ▒▒▒▒▒   ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒     ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███                                   ███                     █████     ███  ████                   ███      
+#      ███▒                                   ▒▒▒                     ▒▒███     ▒▒▒  ▒▒███                  ▒▒▒███    
+#    ███▒    ████████  ████████   ██████      █████  ██████   ██████  ███████   ████  ▒███   ██████   █████   ▒▒▒███  
+#  ███▒     ▒▒███▒▒███▒▒███▒▒███ ███▒▒███    ▒▒███  ███▒▒███ ███▒▒███▒▒▒███▒   ▒▒███  ▒███  ███▒▒███ ███▒▒      ▒▒▒███
+# ▒▒▒███     ▒███ ▒███ ▒███ ▒▒▒ ▒███ ▒███     ▒███ ▒███████ ▒███ ▒▒▒   ▒███     ▒███  ▒███ ▒███████ ▒▒█████      ███▒ 
+#   ▒▒▒███   ▒███ ▒███ ▒███     ▒███ ▒███     ▒███ ▒███▒▒▒  ▒███  ███  ▒███ ███ ▒███  ▒███ ▒███▒▒▒   ▒▒▒▒███   ███▒   
+#     ▒▒▒███ ▒███████  █████    ▒▒██████      ▒███ ▒▒██████ ▒▒██████   ▒▒█████  █████ █████▒▒██████  ██████  ███▒     
+#       ▒▒▒  ▒███▒▒▒  ▒▒▒▒▒      ▒▒▒▒▒▒       ▒███  ▒▒▒▒▒▒   ▒▒▒▒▒▒     ▒▒▒▒▒  ▒▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒       
+#            ▒███                         ███ ▒███                                                                    
+#            █████                       ▒▒██████                                                                     
+#           ▒▒▒▒▒                         ▒▒▒▒▒▒                                                                      
+
+on shoot:
+    shooter is a player
+    if has_infuse(shooter, "feather") is true:
+        if event-projectile is a wind charge:
+            set the velocity of the event-projectile to (velocity of event-projectile) * {-infuse::config::feather::wind_charge_speed}
+            set item cooldown of wind charge for shooter to {-infuse::config::feather::wind_charge_cooldown}
+
+    if has_infuse(shooter, "fire") is true:
+        ignite event-projectile for 32767 ticks
+
+        if event-projectile is a snowball:
+            wait 1 tick
+            kill event-projectile
+            set item cooldown of snowball for shooter to {-infuse::config::fire::snowball_cooldown}
+            spawn a fireball at shooter's eye location:
+                set the velocity of the entity to (velocity of event-projectile) * 3
+                set the explosive yield of the entity to 3
+            play sound "entity.blaze.shoot" at shooter
+    
+    if has_infuse(shooter, "speed") is true:
+        event-projectile is not ender pearl
+        set the velocity of the event-projectile to (velocity of event-projectile) * 2
+
+    event-projectile is an arrow
+    if has_infuse(shooter, "strength") is true:
+        modify nbt of event-projectile:
+            set byte tag "PierceLevel" of nbt to 127
+
+        # set velocity of event-projectile to (velocity of event-projectile) * 2
+
+        # while event-projectile is not on ground:
+        #     if distance between event-projectile and shooter < 48:
+        #         wait 2 tick
+        #         force draw 10 end rod particles with an extra value of 0.04 at event-projectile
+        #     else:
+        #         stop
+
+on ready arrow:
+    if has_infuse(event-player, "speed") is true:
+        item cooldown of selected bow for player <= 0 seconds
+        set item cooldown of selected bow for player to 3 tick
+        wait 3 tick
+        interrupt use of event-player's item
+        make event-player shoot arrow at speed 50
+        # send nearest entity relative to player to player
+        play sound "entity.arrow.shoot" at player
+
+# ┏┓┳┓┳┓┏┓┳┓
+# ┣ ┃┃┃┃┣ ┣┫
+# ┗┛┛┗┻┛┗┛┛┗
+on right click:
+    if event-item is dragon breath:
+        if has_infuse(event-player, "ender") is true:       
+            item cooldown of event-item for player <= 0 seconds
+            remove 1 of event-item from player's inventory
+            set item cooldown of event-item for player to {-infuse::config::ender::dragon_fireball_cooldown}
+            make player shoot a dragon fireball at speed {-infuse::config::ender::dragon_fireball_speed}
+            play sound "entity.ender_dragon.shoot" at player
+
+on projectile collide:
+    shooter is a player
+    if has_infuse(shooter, "frost") is true:
+        set freeze time of event-entity to 30 seconds
+        apply slowness 2 to event-entity for 5 seconds
+
+    if has_infuse(shooter, "invisibility") is true:
+        apply blindness 1 to event-entity for 5 seconds
+
+    if has_infuse(shooter, "ender") is true:
+        event-entity is a player
+        event-entity is not shooter
+        {infuse::trust::%uuid of shooter%::%uuid of event-entity%} is not set
+        add 1 to {-infuse::transient::%uuid of event-entity%::ender_cursed}
+        cooldown_end(shooter, "ender")
+        run {-infuse::config::ender::curse_duration} later:
+            subtract 1 from {-infuse::transient::%uuid of event-entity%::ender_cursed}
+            if {-infuse::transient::%uuid of event-entity%::ender_cursed} < 0:
+                set {-infuse::transient::%uuid of event-entity%::ender_cursed} to 0
+
+    event-projectile is trident
+    if has_infuse(shooter, "ocean") is true:
+        set {_dist} to distance between shooter and event-entity
+        set {_pullForce} to (min({-infuse::config::ocean::trident_pull_cap},{_dist}) - {-infuse::config::ocean::trident_pull_offset}) * {-infuse::config::ocean::trident_pull_coefficient}
+        if {_pullForce} > 0:
+            set velocity of event-entity to vector(0,0,0)
+            wait 1 tick
+            push event-entity upwards with force 0.2
+            push event-entity towards shooter with force {_pullForce}
+            
+            force draw (3 bubble particles) at line(midpoint(location of event-entity, eye of event-entity), midpoint(location of shooter, eye of shooter), 40)
+            play sound "block.bubble_column.upwards_inside" with volume 1 at event-entity
+            play sound "block.bubble_column.upwards_inside" with volume 1 at shooter
+            set item cooldown of trident for shooter to 5 seconds
+
+    if has_infuse(shooter, "thunder") is true:
+        strike lightning effect at event-entity
+        true_damage(shooter, event-entity, {-infuse::config::thunder::true_damage})
+        play sound "entity.lightning_bolt.thunder" with volume 1 at event-entity
+        set item cooldown of trident for shooter to {-infuse::config::thunder::trident_cooldown}
+        
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

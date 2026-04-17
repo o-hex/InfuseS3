@@ -1,0 +1,147 @@
+#  ███       ███       ███             ██████                                  █████     ███                                       
+# ▒▒▒███    ▒▒▒███    ▒▒▒███          ███▒▒███                                ▒▒███     ▒▒▒                                        
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███       ▒███ ▒▒▒  █████ ████ ████████    ██████  ███████   ████   ██████  ████████    █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ███████   ▒▒███ ▒███ ▒▒███▒▒███  ███▒▒███▒▒▒███▒   ▒▒███  ███▒▒███▒▒███▒▒███  ███▒▒            
+#      ███▒      ███▒      ███▒    ▒▒▒███▒     ▒███ ▒███  ▒███ ▒███ ▒███ ▒▒▒   ▒███     ▒███ ▒███ ▒███ ▒███ ▒███ ▒▒█████           
+#    ███▒      ███▒      ███▒        ▒███      ▒███ ▒███  ▒███ ▒███ ▒███  ███  ▒███ ███ ▒███ ▒███ ▒███ ▒███ ▒███  ▒▒▒▒███          
+#  ███▒      ███▒      ███▒          █████     ▒▒████████ ████ █████▒▒██████   ▒▒█████  █████▒▒██████  ████ █████ ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒           ▒▒▒▒▒       ▒▒▒▒▒▒▒▒ ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒     ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███               █████     █████  ███   █████     ███                                ████  ███      
+#      ███▒               ▒▒███     ▒▒███  ▒▒▒   ▒▒███     ▒▒▒                                ▒▒███ ▒▒▒███    
+#    ███▒     ██████    ███████   ███████  ████  ███████   ████   ██████  ████████    ██████   ▒███   ▒▒▒███  
+#  ███▒      ▒▒▒▒▒███  ███▒▒███  ███▒▒███ ▒▒███ ▒▒▒███▒   ▒▒███  ███▒▒███▒▒███▒▒███  ▒▒▒▒▒███  ▒███     ▒▒▒███
+# ▒▒▒███      ███████ ▒███ ▒███ ▒███ ▒███  ▒███   ▒███     ▒███ ▒███ ▒███ ▒███ ▒███   ███████  ▒███      ███▒ 
+#   ▒▒▒███   ███▒▒███ ▒███ ▒███ ▒███ ▒███  ▒███   ▒███ ███ ▒███ ▒███ ▒███ ▒███ ▒███  ███▒▒███  ▒███    ███▒   
+#     ▒▒▒███▒▒████████▒▒████████▒▒████████ █████  ▒▒█████  █████▒▒██████  ████ █████▒▒████████ █████ ███▒     
+#       ▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒ ▒▒▒▒▒    ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒  ▒▒▒▒▒▒▒▒ ▒▒▒▒▒ ▒▒▒       
+
+options:
+    prefix: "&e[i] &7» <reset>"             
+
+function true_damage(a: player, v: entity, d: number):
+    if invincibility time of {_v} <= 0 ticks:
+        add {_d} to {p::%uuid of {_v}%}
+        {proc::%uuid of {_v}%} is not set
+        set {proc::%uuid of {_v}%} to true
+        wait 1 tick
+        set {_t} to {p::%uuid of {_v}%}
+        delete {p::%uuid of {_v}%} and {proc::%uuid of {_v}%}
+        
+        if {_t} >= (health of {_v} + absorption amount of {_v}):
+            make {_a} damage {_v} by 40
+        else:
+            # play hurt animation on {_v}
+            # play sound "entity.generic.hurt" at {_v}
+            # set invincibility time of {_v} to 20 ticks # Set invulnerability time manually, note this would override the haste i-frame reduction
+
+            make {_a} damage {_v} by 0.01 # Triggers i-frames, (hopefully) captured by combat plugins to put the victim and attacker into combat
+            set {_left} to {_t} - absorption amount of {_v}
+            set absorption amount of {_v} to max(0, (absorption amount of {_v} - {_t}))
+            if {_left} > 0:
+                set health of {_v} to (health of {_v} - {_left})
+
+function htd(n: text) :: integer:
+    set {_decimal} to 0
+    loop (uppercase {_n} split at "" without trailing text):
+        set {_val} to (index of loop-value in "0123456789ABCDEF") - 1
+        if {_val} >= 0:
+            set {_decimal} to ({_decimal} * 16) + {_val}  
+    return {_decimal}
+    
+function has_infuse(p: player, e: text) :: boolean:
+    set {_u} to uuid of {_p}
+    if {infuse::stats::%{_u}%::primary} is {_e}:
+        return true
+    if {infuse::stats::%{_u}%::secondary} is {_e}:
+        return true
+    return false
+
+function has_spark(p: player, e: text) :: boolean:
+    set {_u} to uuid of {_p}
+    if ({infuse::active::%{_u}%::%{_e}%::s} ? 0) > 0:
+        return true
+    return false
+
+function btimer(p: player, t: number, ti: text=""):
+    set {_bar} to new bossbar with title {_ti} with color yellow with style segmented 10 with progress 100
+    add {_p} to bar players of {_bar}
+    set {_max} to {_t}
+    
+    loop {_t} times:
+        set {_current} to ({_t} - loop-number)
+        set {_percent} to ({_current} / {_max}) * 100
+        set bar progress of {_bar} to {_percent}
+            
+        wait 1 tick
+        
+    remove {_p} from bar players of {_bar}
+
+function global_bar(ti: text, color: color = yellow) :: bossbar:
+    set {_bar} to new bossbar with title {_ti} with color {_color} with style segmented 10 with progress 100
+    add all players to bar players of {_bar}
+    return {_bar}
+
+function drain_effect(p: player, slot: text):
+    set {_u} to uuid of {_p}
+    set {_e} to {infuse::stats::%{_u}%::%{_slot}%}
+    if {_e} is not set:
+        send "%{@prefix}%You don't have an effect in your %{_slot}% slot." to {_p}
+        stop
+    if {_e} is "none":
+        send "%{@prefix}%You don't have an effect in your %{_slot}% slot." to {_p}
+        stop
+
+    if ({infuse::active::%{_u}%::%{_e}%::s} ? 0) + ({infuse::active::%{_u}%::%{_e}%::c} ? 0) > 0:
+        send "%{@prefix}%You cannot remove this effect while it is active or on cooldown!" to {_p}
+        stop
+
+    if {_p} has enough space for 1 bedrock:
+        set {_i} to get_item({_e}, {infuse::stats::%uuid of {_p}%::%{_slot}%::a} ? false)
+        give {_p} {_i}
+        set_infuse({_p}, {_slot}, "none", false)
+
+        send "%{@prefix}%Drained &f%{_e}% &efrom your &f%{_slot}% &eslot." to {_p}
+        play sound "item.bottle.fill" with volume 0.5 and pitch 0.8 to {_p}
+    else:
+        send "%{@prefix}%Your inventory is full!" to {_p}
+
+function getRGB(speed: number = 1, offset: number = 0, brightness: number = 255) :: color:
+    set {_h} to mod((((unix timestamp of now * {_speed})) + {_offset}), 6)
+    set {_f} to {_h} - floor({_h})
+    set {_v} to {_brightness}
+    set {_q} to {_v} * (1 - {_f})
+    set {_t} to {_v} * {_f}
+    if floor({_h}) is 0:
+        set {_r} to {_v}
+        set {_g} to {_t}
+        set {_b} to 0
+    else if floor({_h}) is 1:
+        set {_r} to {_q}
+        set {_g} to {_v}
+        set {_b} to 0
+    else if floor({_h}) is 2:
+        set {_r} to 0
+        set {_g} to {_v}
+        set {_b} to {_t}
+    else if floor({_h}) is 3:
+        set {_r} to 0
+        set {_g} to {_q}
+        set {_b} to {_v}
+    else if floor({_h}) is 4:
+        set {_r} to {_t}
+        set {_g} to 0
+        set {_b} to {_v}
+    else:
+        set {_r} to {_v}
+        set {_g} to 0
+        set {_b} to {_q}
+
+    return rgb({_r}, {_g}, {_b})
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

@@ -1,0 +1,442 @@
+#  ███       ███       ███                              █████     ███                                       
+# ▒▒▒███    ▒▒▒███    ▒▒▒███                           ▒▒███     ▒▒▒                                        
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███       ██████  ████████  ███████   ████   ██████  ████████    █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ███▒▒███▒▒███▒▒███▒▒▒███▒   ▒▒███  ███▒▒███▒▒███▒▒███  ███▒▒            
+#      ███▒      ███▒      ███▒    ▒███ ▒███ ▒███ ▒███  ▒███     ▒███ ▒███ ▒███ ▒███ ▒███ ▒▒█████           
+#    ███▒      ███▒      ███▒      ▒███ ▒███ ▒███ ▒███  ▒███ ███ ▒███ ▒███ ▒███ ▒███ ▒███  ▒▒▒▒███          
+#  ███▒      ███▒      ███▒        ▒▒██████  ▒███████   ▒▒█████  █████▒▒██████  ████ █████ ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒           ▒▒▒▒▒▒   ▒███▒▒▒     ▒▒▒▒▒  ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒ ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+#                                            ▒███                                                           
+#                                            █████                                                          
+#                                           ▒▒▒▒▒                                                           
+
+# To change the config, you have 3 options
+# Restart the server
+# Hotswap it with /infuse:conf - Some values cannot be changed
+# Reload this skript to push all the changes - Recommended
+options:
+    # fire.spread_check: 5 ticks                 | Modify manually
+
+    allow_same_effects: false                    # means you can stack the same effects for halving the cooldown, personally i find this interesting
+    allow_true_damage: true                      # ignore
+    roll_first_join: false                       # if your server receives a bot attack, there will be thousands of display entities, i've tested it with 60 roll animations at once it was sort of okay
+    do_roll_animation: true                      # if you have a lot of players joining at once, its better to turn this off, its just a cosmetic effect, it looks nice tho
+    head_drop: false                             # missing the head drop feature, i completely forgot about it, setting this to true makes the head of a player drop when killed
+    lock_effects: false                          # locks specific effects to the primary and secondary slots (can be bypassed with the admin-only /infuse command) 
+    primary_effects: "heart", "strength", "regeneration", "haste", "invisibility", "frost", "thunder" and "feather" # if you dont add an effect in primary or secondary, it becomes available to be equipped in both slots
+    secondary_effects: "speed", "fire", "ocean" and "emerald"
+
+    overwrite_enchants: true                     # Enchants will be overwritten, for example if you had the emerald effect that gives looting 5, and you enchanted your sword with looting 3 originally
+                                                 # your looting 3 will be overwritten and will not be restored after removing the emerald effect
+                                                 # If you really want it to restore, take a look at heartbeat.sk, there's a 120 line commented out section that only barely works
+                                                 # If you set this option to false, it won't enchant your tools if there is already an enchant present
+
+    trust_list_max: 3                            # maximum people in your trust list
+    trust_list_delay: 10 seconds                 # this is to prevent people from exploiting the trust list, like making a macro for the invis effect, since everyone turns invisible in your spark radius if they are your teammate
+    charged_refresh_speed: 15                    # this is the animation refresh speed for the charged bar beside the icon, higher number means a faster animation
+
+    recharge_sound: "custom.health"              # these are included in the resource pack, you can use the beacon activate sound if you want
+    use_sound: "custom.activate"                 # same as the above
+
+    emerald.craft_limit: ∞
+    emerald.augment_limit: 0                     # Apparently augmented effects don't exist on infusesmp.net ssn 3? im not entirely sure
+    feather.craft_limit: ∞
+    feather.augment_limit: 0
+    fire.craft_limit: ∞
+    fire.augment_limit: 0
+    frost.craft_limit: ∞
+    frost.augment_limit: 0
+    haste.craft_limit: ∞
+    haste.augment_limit: 0
+    heart.craft_limit: ∞
+    heart.augment_limit: 0
+    invisibility.craft_limit: ∞
+    invisibility.augment_limit: 0
+    ocean.craft_limit: ∞
+    ocean.augment_limit: 0
+    regeneration.craft_limit: ∞
+    regeneration.augment_limit: 0
+    speed.craft_limit: ∞
+    speed.augment_limit: 0
+    strength.craft_limit: ∞
+    strength.augment_limit: 0
+    thunder.craft_limit: ∞            
+    thunder.augment_limit: 0 
+    ender.craft_limit: 1                         # i will make the ritual available by default for the ender effect
+    ender.augment_limit: 1                       # it also does use the augmented icon, so its fair
+
+    strength.shield_disable_time: 10 seconds     # Normally the shield is disabled for 5 seconds, 10 seconds means its doubled
+    strength.shield_disable_damage: 20           # Durability removed from shield on disable
+    strength.shield_penetration: 2               # Calculated in damage / x, 1 = 100%, 2 = 50%, 3 = 33%, 4 = 25%, 5 = 20%, supports decimals
+    strength.mob_damage: 2                       # Damage multiplier towards mobs
+    strength.hp_loss_atk_bonus: 0.3      
+    strength.double_crit_mult: 1.334             # since strength already auto-crits in spark, i believe this is necessary to not make the normal crit obsolete
+                                                 # 1.334 means 1.5 (the default crit multiplier) * 1.334 (the additional crit "double critting") = 2x
+                                                 # this creates a 2x multiplier TOTAL if you crit while already having the strength auto crit
+                                                 # if you want to disable this just set it to ONE (1) NOT ZERO (0)
+
+    strength.cooldown: 60 seconds
+    strength.spark: 15 seconds
+
+    heart.passive_hearts: 15
+    heart.food_item_absorption_tier: 1
+    heart.egap_absorption_tier: 5
+    heart.food_item_duration: 1 minute
+    heart.egap_item_duration: 1 minute
+    heart.return_after_hit: 10                   # transfer and return to original health
+    heart.spark_hearts: 20
+    heart.transfer_health_max_duration: 480      # Calculated in x / available health
+    heart.spark_heal_percentage: 0.2
+
+    heart.cooldown: 120 seconds
+    heart.spark: 60 seconds
+
+    fire.trigger_hits: 5
+    fire.eternal_ticks: 32767 ticks
+    fire.ignite_ticks: 100 ticks
+    fire.swim_power: 0.4
+    fire.snowball_cooldown: 15 seconds
+    fire.launch_radius: 6
+    fire.launch_power: 3
+    fire.ignite_radius: 6
+    fire.ignite_duration: 200 ticks
+    fire.burn_radius: 6
+
+    fire.cooldown: 90 seconds
+    fire.spark: 4 seconds
+
+    thunder.trigger_hits: 10
+    thunder.true_damage: 1
+    thunder.lightning_chain_max: 10
+    thunder.lightning_chain_radius: 12
+    thunder.strike_time_max: 5
+    thunder.trident_cooldown: 10 seconds
+
+    thunder.cooldown: 90 seconds
+    thunder.spark: 10 seconds
+
+    emerald.trigger_hits: 10
+    emerald.xp_gain: 1
+    emerald.hit_item_cooldown: 10 seconds
+    emerald.no_consume_chance: 0.5
+    emerald.xp_steal_amount: 2
+    emerald.spark_xp_gain: 2
+    emerald.spark_no_consume_chance: 0.75
+    emerald.xp_share_amount: 2
+    emerald.enchant_chance: 0.1
+
+    emerald.cooldown: 30 seconds
+    emerald.spark: 10 seconds
+
+    ocean.drown_damage: 2
+    ocean.passive_radius: 8
+    ocean.trident_pull_coefficient: 0.27
+    ocean.trident_pull_offset: 1.5
+    ocean.trident_pull_cap: 16
+    ocean.pull_interval: 2 ticks
+    ocean.pull_radius: 6
+    ocean.pull_strength: 0.1
+    ocean.pull_iteration: 50
+    ocean.enchant_chance: 0.1
+
+    ocean.cooldown: 90 seconds
+    ocean.spark: 5 seconds
+
+    frost.trigger_hits: 10
+    frost.wind_charge_cooldown: 10 seconds
+    frost.freeze_time: 30 seconds
+    frost.mining_fatigue_time: 10 seconds
+    frost.mining_fatigue_tier: 2
+    frost.spark_move_speed: 2.0
+    frost.lava_walk: true # check not implemented yet
+    frost.move_speed: 1.5
+    frost.knockback_resistance: 1.3
+    frost.replace_floor: true
+    
+    frost.cooldown: 60 seconds
+    frost.spark: 10 seconds
+
+    invisibility.invis_iteration: 50
+    invisibility.invis_interval: 4 ticks
+    invisibility.base_spark_radius: 8
+    invisibility.max_spark_radius: 12
+    invisibility.teammate_coefficient: 1
+    invisibility.trigger_hits: 10
+    invisibility.blindness_duration: 10 seconds
+    
+    invisibility.cooldown: 90 seconds
+    invisibility.spark: 10 seconds
+
+    regeneration.duration_hit: 3 seconds
+    regeneration.food: 3
+    regeneration.saturation: 0
+    regeneration.trigger_hits: 10
+    regeneration.spark_heal_radius: 8
+    regeneration.spark_heal_interval: 1 second
+    regeneration.spark_heal_iteration: 15
+    regeneration.spark_heal_percentage: 0.2
+    regeneration.effect_hit_tier: 2
+
+    regeneration.cooldown: 60 seconds 
+    regeneration.spark: 15 seconds
+
+    speed.multiplier: 0.2
+    speed.hit_increase: 0.01
+    speed.hit_decrease: -0.02
+    speed.max_penalty: -0.2
+    speed.stack_cap: 0.2
+    speed.dash_power: 2.6
+    speed.dash_damping: 0.6
+    speed.dash_iteration: 14
+    speed.dash_true_damage: 2
+    speed.dash_effect_radius: 1.5
+    speed.dash_interval: 1 tick
+    
+    speed.cooldown: 20 seconds
+    speed.spark: 1 second
+
+    feather.wind_burst_fall_min: 10
+    feather.wind_burst_power: 1.5
+    feather.wind_burst_damage_multiplier: 0.5
+    feather.wind_charge_speed: 2
+    feather.wind_charge_cooldown: 5 seconds
+    feather.max_wind_charge: 3
+    feather.trigger_hits: 10
+    feather.initial_bounce_power: 2
+    feather.fall_trigger_threshold: 3
+    feather.min_shockwave_radius: 3
+    feather.max_shockwave_radius: 12
+    feather.slow_falling_duration: 5 seconds
+    feather.shockwave_true_damage: 2
+    feather.bounce_coefficient: 1.5
+    feather.shockwave_rings: 8
+    feather.shockwave_draw_interval: 1 tick
+
+    feather.cooldown: 40 seconds
+    feather.spark: 5 seconds
+
+    haste.break_speed_multiplier: 1.5
+    haste.iframe_duration: 19
+    haste.attack_speed_stack: 0.2
+    haste.decay_amount: -0.1
+    haste.spark_atkspd_increase: 0.5
+    haste.enchant_chance: 0.1
+
+    haste.cooldown: 60 seconds
+    haste.spark: 15 seconds
+
+    ender.untrust_glow_radius: 5
+    ender.dragon_fireball_speed: 2
+    ender.dragon_fireball_cooldown: 10 seconds
+    ender.curse_duration: 15 seconds
+    ender.teleport_max_radius: 15
+
+    ender.cooldown: 15 seconds
+    ender.spark: 1 second
+
+on load:
+    clear {-infuse::config::*}
+    # set {-infuse::config::skip_initialization} to {@skip_initialization}
+    set {-infuse::config::allow_same_effects} to {@allow_same_effects}
+    set {-infuse::config::allow_true_damage} to {@allow_true_damage}
+    set {-infuse::config::roll_first_join} to {@roll_first_join}
+    set {-infuse::config::do_roll_animation} to {@do_roll_animation}
+    set {-infuse::config::trust_list_max} to {@trust_list_max}
+    set {-infuse::config::head_drop} to {@head_drop}
+    set {-infuse::config::trust_list_delay} to {@trust_list_delay}
+    set {-infuse::config::charged_refresh_speed} to {@charged_refresh_speed}
+    set {-infuse::config::recharge_sound} to {@recharge_sound}
+    set {-infuse::config::use_sound} to {@use_sound}
+    set {-infuse::config::lock_effects} to {@lock_effects}
+    set {-infuse::config::primary_effects::*} to {@primary_effects}
+    set {-infuse::config::secondary_effects::*} to {@secondary_effects}
+    set {-infuse::config::overwrite_enchants} to {@overwrite_enchants}
+
+    set {-infuse::config::emerald::craft_limit} to {@emerald.craft_limit}
+    set {-infuse::config::emerald::augment_limit} to {@emerald.augment_limit}
+    set {-infuse::config::feather::craft_limit} to {@feather.craft_limit}
+    set {-infuse::config::feather::augment_limit} to {@feather.augment_limit}
+    set {-infuse::config::fire::craft_limit} to {@fire.craft_limit}
+    set {-infuse::config::fire::augment_limit} to {@fire.augment_limit}
+    set {-infuse::config::frost::craft_limit} to {@frost.craft_limit}
+    set {-infuse::config::frost::augment_limit} to {@frost.augment_limit}
+    set {-infuse::config::haste::craft_limit} to {@haste.craft_limit}
+    set {-infuse::config::haste::augment_limit} to {@haste.augment_limit}
+    set {-infuse::config::heart::craft_limit} to {@heart.craft_limit}
+    set {-infuse::config::heart::augment_limit} to {@heart.augment_limit}
+    set {-infuse::config::invisibility::craft_limit} to {@invisibility.craft_limit}
+    set {-infuse::config::invisibility::augment_limit} to {@invisibility.augment_limit}
+    set {-infuse::config::ocean::craft_limit} to {@ocean.craft_limit}
+    set {-infuse::config::ocean::augment_limit} to {@ocean.augment_limit}
+    set {-infuse::config::regeneration::craft_limit} to {@regeneration.craft_limit}
+    set {-infuse::config::regeneration::augment_limit} to {@regeneration.augment_limit}
+    set {-infuse::config::speed::craft_limit} to {@speed.craft_limit}
+    set {-infuse::config::speed::augment_limit} to {@speed.augment_limit}
+    set {-infuse::config::strength::craft_limit} to {@strength.craft_limit}
+    set {-infuse::config::strength::augment_limit} to {@strength.augment_limit}
+    set {-infuse::config::thunder::craft_limit} to {@thunder.craft_limit}
+    set {-infuse::config::thunder::augment_limit} to {@thunder.augment_limit}
+    set {-infuse::config::ender::craft_limit} to {@ender.craft_limit}
+    set {-infuse::config::ender::augment_limit} to {@ender.augment_limit}
+
+    set {-infuse::config::strength::shield_disable_time} to {@strength.shield_disable_time}
+    set {-infuse::config::strength::shield_disable_damage} to {@strength.shield_disable_damage}
+    set {-infuse::config::strength::shield_penetration} to {@strength.shield_penetration}
+    set {-infuse::config::strength::mob_damage} to {@strength.mob_damage}
+    set {-infuse::config::strength::hp_loss_atk_bonus} to {@strength.hp_loss_atk_bonus}
+    set {-infuse::config::strength::double_crit_mult} to {@strength.double_crit_mult}
+    set {-infuse::config::strength::cd} to {@strength.cooldown}'s ticks
+    set {-infuse::config::strength::spark} to {@strength.spark}'s ticks
+
+    set {-infuse::config::heart::passive_hearts} to {@heart.passive_hearts}
+    set {-infuse::config::heart::food_item_absorption_tier} to {@heart.food_item_absorption_tier}
+    set {-infuse::config::heart::egap_absorption_tier} to {@heart.egap_absorption_tier}
+    set {-infuse::config::heart::food_item_duration} to {@heart.food_item_duration}
+    set {-infuse::config::heart::egap_item_duration} to {@heart.egap_item_duration}
+    set {-infuse::config::heart::return_after_hit} to {@heart.return_after_hit}
+    set {-infuse::config::heart::spark_hearts} to {@heart.spark_hearts}
+    set {-infuse::config::heart::transfer_health_max_duration} to {@heart.transfer_health_max_duration}
+    set {-infuse::config::heart::spark_heal_percentage} to {@heart.spark_heal_percentage}
+    set {-infuse::config::heart::cd} to {@heart.cooldown}'s ticks
+    set {-infuse::config::heart::spark} to {@heart.spark}'s ticks
+
+    set {-infuse::config::fire::trigger_hits} to {@fire.trigger_hits}
+    set {-infuse::config::fire::eternal_ticks} to {@fire.eternal_ticks}
+    set {-infuse::config::fire::ignite_ticks} to {@fire.ignite_ticks}
+    set {-infuse::config::fire::swim_power} to {@fire.swim_power}
+    # set {-infuse::config::fire::spread_check} to {@fire.spread_check}'s ticks | Engine limitation, modify manually
+    set {-infuse::config::fire::snowball_cooldown} to {@fire.snowball_cooldown}
+    set {-infuse::config::fire::launch_radius} to {@fire.launch_radius}
+    set {-infuse::config::fire::launch_power} to {@fire.launch_power}
+    set {-infuse::config::fire::ignite_radius} to {@fire.ignite_radius}
+    set {-infuse::config::fire::ignite_duration} to {@fire.ignite_duration}
+    set {-infuse::config::fire::burn_radius} to {@fire.burn_radius}
+    set {-infuse::config::fire::cd} to {@fire.cooldown}'s ticks
+    set {-infuse::config::fire::spark} to {@fire.spark}'s ticks
+
+    set {-infuse::config::thunder::trigger_hits} to {@thunder.trigger_hits}
+    set {-infuse::config::thunder::true_damage} to {@thunder.true_damage}
+    set {-infuse::config::thunder::lightning_chain_max} to {@thunder.lightning_chain_max}
+    set {-infuse::config::thunder::lightning_chain_radius} to {@thunder.lightning_chain_radius}
+    set {-infuse::config::thunder::strike_time_max} to {@thunder.strike_time_max}
+    set {-infuse::config::thunder::trident_cooldown} to {@thunder.trident_cooldown}
+    set {-infuse::config::thunder::cd} to {@thunder.cooldown}'s ticks
+    set {-infuse::config::thunder::spark} to {@thunder.spark}'s ticks
+
+    set {-infuse::config::emerald::trigger_hits} to {@emerald.trigger_hits}
+    set {-infuse::config::emerald::xp_gain} to {@emerald.xp_gain}
+    set {-infuse::config::emerald::hit_item_cooldown} to {@emerald.hit_item_cooldown}
+    set {-infuse::config::emerald::no_consume_chance} to {@emerald.no_consume_chance}
+    set {-infuse::config::emerald::xp_steal_amount} to {@emerald.xp_steal_amount}
+    set {-infuse::config::emerald::spark_xp_gain} to {@emerald.spark_xp_gain}
+    set {-infuse::config::emerald::spark_no_consume_chance} to {@emerald.spark_no_consume_chance}
+    set {-infuse::config::emerald::xp_share_amount} to {@emerald.xp_share_amount}
+    set {-infuse::config::emerald::enchant_chance} to {@emerald.enchant_chance}
+    set {-infuse::config::emerald::cd} to {@emerald.cooldown}'s ticks
+    set {-infuse::config::emerald::spark} to {@emerald.spark}'s ticks
+
+    set {-infuse::config::ocean::drown_damage} to {@ocean.drown_damage}
+    set {-infuse::config::ocean::passive_radius} to {@ocean.passive_radius}
+    set {-infuse::config::ocean::trident_pull_coefficient} to {@ocean.trident_pull_coefficient}
+    set {-infuse::config::ocean::trident_pull_offset} to {@ocean.trident_pull_offset}
+    set {-infuse::config::ocean::trident_pull_cap} to {@ocean.trident_pull_cap}
+    set {-infuse::config::ocean::pull_interval} to {@ocean.pull_interval}
+    set {-infuse::config::ocean::pull_radius} to {@ocean.pull_radius}
+    set {-infuse::config::ocean::pull_strength} to {@ocean.pull_strength}
+    set {-infuse::config::ocean::pull_iteration} to {@ocean.pull_iteration}
+    set {-infuse::config::ocean::enchant_chance} to {@ocean.enchant_chance}
+    set {-infuse::config::ocean::cd} to {@ocean.cooldown}'s ticks
+    set {-infuse::config::ocean::spark} to {@ocean.spark}'s ticks
+
+    set {-infuse::config::frost::trigger_hits} to {@frost.trigger_hits}
+    set {-infuse::config::frost::wind_charge_cooldown} to {@frost.wind_charge_cooldown}
+    set {-infuse::config::frost::freeze_time} to {@frost.freeze_time}
+    set {-infuse::config::frost::mining_fatigue_time} to {@frost.mining_fatigue_time}
+    set {-infuse::config::frost::mining_fatigue_tier} to {@frost.mining_fatigue_tier}
+    set {-infuse::config::frost::spark_move_speed} to {@frost.spark_move_speed}
+    set {-infuse::config::frost::lava_walk} to {@frost.lava_walk}
+    set {-infuse::config::frost::move_speed} to {@frost.move_speed}
+    set {-infuse::config::frost::knockback_resistance} to {@frost.knockback_resistance}
+    set {-infuse::config::frost::replace_floor} to {@frost.replace_floor}
+    set {-infuse::config::frost::cd} to {@frost.cooldown}'s ticks
+    set {-infuse::config::frost::spark} to {@frost.spark}'s ticks
+
+    set {-infuse::config::invisibility::invis_iteration} to {@invisibility.invis_iteration}
+    set {-infuse::config::invisibility::invis_interval} to {@invisibility.invis_interval}
+    set {-infuse::config::invisibility::base_spark_radius} to {@invisibility.base_spark_radius}
+    set {-infuse::config::invisibility::max_spark_radius} to {@invisibility.max_spark_radius}
+    set {-infuse::config::invisibility::teammate_coefficient} to {@invisibility.teammate_coefficient}
+    set {-infuse::config::invisibility::trigger_hits} to {@invisibility.trigger_hits}
+    set {-infuse::config::invisibility::blindness_duration} to {@invisibility.blindness_duration}
+    set {-infuse::config::invisibility::cd} to {@invisibility.cooldown}'s ticks
+    set {-infuse::config::invisibility::spark} to {@invisibility.spark}'s ticks
+
+    set {-infuse::config::regeneration::effect_hit_tier} to {@regeneration.effect_hit_tier}
+    set {-infuse::config::regeneration::duration_hit} to {@regeneration.duration_hit}'s ticks
+    set {-infuse::config::regeneration::food} to {@regeneration.food}
+    set {-infuse::config::regeneration::saturation} to {@regeneration.saturation}
+    set {-infuse::config::regeneration::trigger_hits} to {@regeneration.trigger_hits}
+    set {-infuse::config::regeneration::spark_heal_radius} to {@regeneration.spark_heal_radius}
+    set {-infuse::config::regeneration::spark_heal_interval} to {@regeneration.spark_heal_interval}
+    set {-infuse::config::regeneration::spark_heal_iteration} to {@regeneration.spark_heal_iteration}
+    set {-infuse::config::regeneration::spark_heal_percentage} to {@regeneration.spark_heal_percentage}
+    set {-infuse::config::regeneration::cd} to {@regeneration.cooldown}'s ticks
+    set {-infuse::config::regeneration::spark} to {@regeneration.spark}'s ticks
+
+    set {-infuse::config::speed::multiplier} to {@speed.multiplier}
+    set {-infuse::config::speed::hit_increase} to {@speed.hit_increase}
+    set {-infuse::config::speed::hit_decrease} to {@speed.hit_decrease}
+    set {-infuse::config::speed::max_penalty} to {@speed.max_penalty}
+    set {-infuse::config::speed::stack_cap} to {@speed.stack_cap}
+    set {-infuse::config::speed::dash_power} to {@speed.dash_power}
+    set {-infuse::config::speed::dash_damping} to {@speed.dash_damping}
+    set {-infuse::config::speed::dash_iteration} to {@speed.dash_iteration}
+    set {-infuse::config::speed::dash_true_damage} to {@speed.dash_true_damage}
+    set {-infuse::config::speed::dash_effect_radius} to {@speed.dash_effect_radius}
+    set {-infuse::config::speed::dash_interval} to {@speed.dash_interval}
+    set {-infuse::config::speed::cd} to {@speed.cooldown}'s ticks
+    set {-infuse::config::speed::spark} to {@speed.spark}'s ticks
+
+    set {-infuse::config::feather::wind_burst_fall_min} to {@feather.wind_burst_fall_min}
+    set {-infuse::config::feather::wind_burst_power} to {@feather.wind_burst_power}
+    set {-infuse::config::feather::wind_burst_damage_multiplier} to {@feather.wind_burst_damage_multiplier}
+    set {-infuse::config::feather::wind_charge_speed} to {@feather.wind_charge_speed}
+    set {-infuse::config::feather::wind_charge_cooldown} to {@feather.wind_charge_cooldown}
+    set {-infuse::config::feather::max_wind_charge} to {@feather.max_wind_charge}
+    set {-infuse::config::feather::trigger_hits} to {@feather.trigger_hits}
+    set {-infuse::config::feather::initial_bounce_power} to {@feather.initial_bounce_power}
+    set {-infuse::config::feather::fall_trigger_threshold} to {@feather.fall_trigger_threshold}
+    set {-infuse::config::feather::min_shockwave_radius} to {@feather.min_shockwave_radius}
+    set {-infuse::config::feather::max_shockwave_radius} to {@feather.max_shockwave_radius}
+    set {-infuse::config::feather::slow_falling_duration} to {@feather.slow_falling_duration}
+    set {-infuse::config::feather::shockwave_true_damage} to {@feather.shockwave_true_damage}
+    set {-infuse::config::feather::bounce_coefficient} to {@feather.bounce_coefficient}
+    set {-infuse::config::feather::shockwave_rings} to {@feather.shockwave_rings}
+    set {-infuse::config::feather::shockwave_draw_interval} to {@feather.shockwave_draw_interval}
+    set {-infuse::config::feather::cd} to {@feather.cooldown}'s ticks
+    set {-infuse::config::feather::spark} to {@feather.spark}'s ticks
+
+    set {-infuse::config::haste::break_speed_multiplier} to {@haste.break_speed_multiplier}
+    set {-infuse::config::haste::iframe_duration} to {@haste.iframe_duration}
+    set {-infuse::config::haste::attack_speed_stack} to {@haste.attack_speed_stack}
+    set {-infuse::config::haste::decay_amount} to {@haste.decay_amount}
+    set {-infuse::config::haste::spark_atkspd_increase} to {@haste.spark_atkspd_increase}
+    set {-infuse::config::haste::enchant_chance} to {@haste.enchant_chance}
+    set {-infuse::config::haste::cd} to {@haste.cooldown}'s ticks
+    set {-infuse::config::haste::spark} to {@haste.spark}'s ticks
+
+    set {-infuse::config::ender::untrust_glow_radius} to {@ender.untrust_glow_radius}
+    set {-infuse::config::ender::dragon_fireball_speed} to {@ender.dragon_fireball_speed}
+    set {-infuse::config::ender::dragon_fireball_cooldown} to {@ender.dragon_fireball_cooldown}
+    set {-infuse::config::ender::teleport_max_radius} to {@ender.teleport_max_radius}
+    set {-infuse::config::ender::curse_duration} to {@ender.curse_duration}
+    set {-infuse::config::ender::cd} to {@ender.cooldown}'s ticks
+    set {-infuse::config::ender::spark} to {@ender.spark}'s ticks
+
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

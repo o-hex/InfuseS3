@@ -1,0 +1,99 @@
+#  ███       ███       ███                                                    █████                     
+# ▒▒▒███    ▒▒▒███    ▒▒▒███                                                 ▒▒███                      
+#   ▒▒▒███    ▒▒▒███    ▒▒▒███       ██████  █████ █████  ██████  ████████   ███████    █████           
+#     ▒▒▒███    ▒▒▒███    ▒▒▒███    ███▒▒███▒▒███ ▒▒███  ███▒▒███▒▒███▒▒███ ▒▒▒███▒    ███▒▒            
+#      ███▒      ███▒      ███▒    ▒███████  ▒███  ▒███ ▒███████  ▒███ ▒███   ▒███    ▒▒█████           
+#    ███▒      ███▒      ███▒      ▒███▒▒▒   ▒▒███ ███  ▒███▒▒▒   ▒███ ▒███   ▒███ ███ ▒▒▒▒███          
+#  ███▒      ███▒      ███▒        ▒▒██████   ▒▒█████   ▒▒██████  ████ █████  ▒▒█████  ██████  █████████
+# ▒▒▒       ▒▒▒       ▒▒▒           ▒▒▒▒▒▒     ▒▒▒▒▒     ▒▒▒▒▒▒  ▒▒▒▒ ▒▒▒▒▒    ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒ 
+
+#        ███             ██████     ██████                     █████            ███      
+#      ███▒             ███▒▒███   ███▒▒███                   ▒▒███            ▒▒▒███    
+#    ███▒     ██████   ▒███ ▒▒▒   ▒███ ▒▒▒   ██████   ██████  ███████    █████   ▒▒▒███  
+#  ███▒      ███▒▒███ ███████    ███████    ███▒▒███ ███▒▒███▒▒▒███▒    ███▒▒      ▒▒▒███
+# ▒▒▒███    ▒███████ ▒▒▒███▒    ▒▒▒███▒    ▒███████ ▒███ ▒▒▒   ▒███    ▒▒█████      ███▒ 
+#   ▒▒▒███  ▒███▒▒▒    ▒███       ▒███     ▒███▒▒▒  ▒███  ███  ▒███ ███ ▒▒▒▒███   ███▒   
+#     ▒▒▒███▒▒██████   █████      █████    ▒▒██████ ▒▒██████   ▒▒█████  ██████  ███▒     
+#       ▒▒▒  ▒▒▒▒▒▒   ▒▒▒▒▒      ▒▒▒▒▒      ▒▒▒▒▒▒   ▒▒▒▒▒▒     ▒▒▒▒▒  ▒▒▒▒▒▒  ▒▒▒       
+                                                                                       
+
+function set_infuse(p: player, s: text, e: text, a: boolean):
+    set {_u} to uuid of {_p}
+    set {_o} to {infuse::stats::%{_u}%::%{_s}%}
+
+    if {_o} is set:
+        if {_o} is "heart":
+            set max health of {_p} to 10
+        else if {_o} is "fire":
+            remove fire resistance from {_p}
+        else if {_o} is "emerald":
+            remove hero of the village from {_p}
+        else if {_o} is "ocean":
+            remove water breathing from {_p}
+            remove dolphin's grace from {_p}
+        else if {_o} is "invisibility":
+            remove invisibility from {_p}
+        else if {_o} is "regeneration":
+            remove regeneration from {_p}
+        else if {_o} is "speed":
+            remove attribute modifier with key "infuse:speed_effect" from {_p}
+            remove attribute modifier with key "infuse:speed_stack" from {_p}
+        else if {_o} is "haste":
+            remove attribute modifier with key "infuse:haste_effect" from {_p}
+            remove attribute modifier with key "infuse:atkspd_stack" from {_p}
+        else if {_o} is "frost":
+            remove attribute modifier with key "infuse:frost_speed" from {_p}
+
+    if {_e} is "none":
+        delete {infuse::stats::%{_u}%::%{_s}%}
+        delete {infuse::stats::%{_u}%::%{_s}%::a}
+        stop
+
+    # needs a delay, or it will bug out bc during something like /swap, the effects are removed and added instantly
+    # thus a race condition is created
+    # it is not hard to just add more checks, but i don't see a reason to do that
+    
+    run 1 tick later:
+        if {_e} is "heart":
+            set max health of {_p} to {-infuse::config::heart::passive_hearts}
+        else if {_e} is "fire":
+            apply infinite ambient potion effect of fire resistance of tier 1 to {_p}
+        else if {_e} is "emerald":
+            apply infinite ambient potion effect of hero of the village of tier 3 to {_p}
+        else if {_e} is "ocean":
+            apply infinite ambient potion effect of water breathing of tier 1 to {_p}
+            apply infinite ambient potion effect of dolphin's grace of tier 1 to {_p}
+        else if {_e} is "invisibility":
+            apply infinite potion effect of invisibility of tier 1 to {_p}: # i dont know if ambient particles also make the invis particles less visible to other players, so i'll not risk it
+                hide the icon
+        else if {_e} is "regeneration":
+            apply infinite ambient potion effect of regeneration of tier 1 to {_p}
+        else if {_e} is "speed":
+            apply transient attribute modifier to {_p}:
+                attribute: generic movement speed
+                id: "infuse:speed_effect"
+                amount: {-infuse::config::speed::multiplier}
+                operation: multiply_scalar_1
+        else if {_e} is "haste":
+            apply transient attribute modifier to {_p}:
+                attribute: block break speed
+                id: "infuse:haste_effect"
+                amount: 1
+                operation: multiply_scalar_1
+
+    set {infuse::stats::%{_u}%::%{_s}%} to {_e}
+    set {infuse::stats::%{_u}%::%{_s}%::a} to {_a}
+
+    set {_ts} to unix timestamp of now * 1000
+    add "%{_e}%:%{_a}%:%{_ts}%" to {infuse::history::%{_u}%::%{_s}%::*}
+    if size of {infuse::history::%{_u}%::%{_s}%::*} > 30:
+        loop {infuse::history::%{_u}%::%{_s}%::*}:
+            delete {infuse::history::%{_u}%::%{_s}%::%loop-index%}
+            stop
+#                                                                             ┓       
+#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
+#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
+#                                                                        ┛            
+#                                       ┏━    ┓            ┓•    •┓        ━┓ 
+#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
+#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 
