@@ -7,7 +7,8 @@
 #    ███▒      ███▒      ███▒       ▒███ ▒███ ▒███ ███▒▒███ ▒███ ▒███           
 #  ███▒      ███▒      ███▒         █████▒▒██████ ▒▒████████▒▒████████ █████████
 # ▒▒▒       ▒▒▒       ▒▒▒          ▒▒▒▒▒  ▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒  ▒▒▒▒▒▒▒▒ ▒▒▒▒▒▒▒▒▒ 
-                                                                              
+
+using script reflection
 on load:
     # if {-infuse::config::skip_initialization} is true:
     #     stop
@@ -83,6 +84,81 @@ on load:
     set {-infuse::flags::color::regeneration} to "#FC00DD"
     set {-infuse::flags::color::speed} to "#D1A44B"
     set {-infuse::flags::color::strength} to "#9E2020"
+
+    if compare_version(skript version, "2.15.0") < 0:
+        send "<yellow>[i] <gray>» <red>YOU ARE USING THE WRONG VERSION OF SKRIPT FOR INFUSE" to console
+        send "<yellow>[i] <gray>» <reset>UPGRADE IMMEDIATELY. NO SUPPORT WILL BE PROVIDED" to console
+        if compare_version(skript version, "2.14.0") >= 0:
+            send "<yellow>[i] <gray>» <reset>You are on %skript version%, which infuse_old is designed for." to console
+            send "<yellow>[i] <gray>» <reset>If you wish to continue using Skript %skript version%, use infuse_old instead." to console
+
+    if plugin "PlaceholderAPI" is enabled:
+        if plugin "skript-placeholders" is not enabled:
+            send "<yellow>[i] <gray>» <reset>PlaceholderAPI is detected but skript-placeholders is not found." to console
+            send "<yellow>[i] <gray>» <reset>skript-placeholders is necessary for other plugins to hook into infuse." to console
+            send "<yellow>[i] <gray>» <reset>If it is unnecessary then feel free to ignore this message." to console
+            send "<yellow>[i] <gray>» <reset>Otherwise you can find skript-placeholders here: https://github.com/APickledWalrus/skript-placeholders" to console
+            loop all of the loaded scripts:
+                set {_s} to loop-value
+                if {_s} contains "placeholder" and "modular":
+                    send "<yellow>[i] <gray>» <red>Disabled: %{_s}%" to console
+                    disable script {_s}
+
+        else:
+            send "<yellow>[i] <gray>» <reset>Enabling placeholder support..." to console
+            set {_p} to false
+            loop all of the scripts:
+                set {_s} to loop-value
+                if {_s} contains "placeholder" and "modular":
+                    if script {_s} is not loaded:
+                        send "<yellow>[i] <gray>» <green>Enabled: %{_s}%" to console
+                        enable script {_s}
+                        set {_p} to true
+            if {_p} is true:
+                send "<yellow>[i] <gray>» <green>Enabled placeholder support!" to console
+            else:
+                send "<yellow>[i] <gray>» <green>Placeholders already enabled!" to console
+    else:
+        send "<yellow>[i] <gray>» <reset>PlaceholderAPI is not found." to console
+        send "<yellow>[i] <gray>» <reset>PlaceholderAPI is necessary for other plugins to hook into infuse." to console
+        send "<yellow>[i] <gray>» <reset>If it is unnecessary then feel free to ignore this message." to console
+        loop all of the loaded scripts:
+            set {_s} to loop-value
+            if {_s} contains "placeholder" and "modular":
+                send "<yellow>[i] <gray>» <red>Disabled: %{_s}%" to console
+                disable script {_s}
+
+    if plugin "WorldGuard" is enabled:
+        if plugin "skript-worldguard" is enabled:
+            send "<yellow>[i] <gray>» <reset>skript-worldguard support for this skript has not been implemented." to console
+            send "<yellow>[i] <gray>» <reset>However this skript will continue to work until the deprecated syntax in Skript is removed." to console
+            send "<yellow>[i] <gray>» <reset>Region protection is still working as of Skript 2.15.0" to console
+        else:
+            if compare_version(skript version, "2.15.0") >= 0:
+                send "<yellow>[i] <gray>» <reset>Skript support for region hooks will be deprecated soon." to console
+                send "<yellow>[i] <gray>» <reset>If you suddenly find the skript not working correctly, make sure to check for an update" to console
+
+        set {_p} to false
+        loop all of the scripts:
+            set {_s} to loop-value
+            if {_s} contains "region" and "modular":
+                if script {_s} is not loaded:
+                    send "<yellow>[i] <gray>» <green>Enabled: %{_s}%" to console
+                    enable script {_s}
+                    set {_p} to true
+        if {_p} is true:
+            send "<yellow>[i] <gray>» <green>Enabled region support!" to console
+        else:
+            send "<yellow>[i] <gray>» <green>Regions already enabled!" to console
+    else:
+        send "<yellow>[i] <gray>» <reset>WorldGuard is not detected" to console
+        send "<yellow>[i] <gray>» <reset>No region support will be provided" to console
+        loop all of the loaded scripts:
+            set {_s} to loop-value
+            if {_s} contains "region" and "modular":
+                send "<yellow>[i] <gray>» <red>Disabled: %{_s}%" to console
+                disable script {_s}
+
 
     # add pale oak log, stripped pale oak log, pale oak wood and stripped pale oak wood to {-infuse::flags::flammable_blocks::*}
     # add pale oak planks, pale oak slab, pale oak stairs, pale oak fence and pale oak fence gate to {-infuse::flags::flammable_blocks::*}
@@ -192,7 +268,17 @@ on load:
             
 #         register new shaped recipe for {_item} using {_i::%{_name}%::*} with id "effect_%{_name}%"
 
-
+function compare_version(v1: text, v2: text) :: number:
+    set {_p1::*} to {_v1} split at "."
+    set {_p2::*} to {_v2} split at "."
+    loop 3 times:
+        set {_n1} to ({_p1::%loop-number%} parsed as number) ? 0
+        set {_n2} to ({_p2::%loop-number%} parsed as number) ? 0
+        if {_n1} > {_n2}:
+            return 1
+        else if {_n1} < {_n2}:
+            return -1
+    return 0
 #                                                                             ┓       
 #                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
 #                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      

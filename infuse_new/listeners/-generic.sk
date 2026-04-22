@@ -19,7 +19,7 @@
 #           ▒▒██████                                                                 
 #            ▒▒▒▒▒▒                                                                  
 options:
-    prefix: "&e[i] &7» <reset>"
+    prefix: "<yellow>[i] <gray>» <reset>"
 # ┳┓┏┓┏┓┏┓┏┓┓ ┏┳┓┳┳┓┏┓
 # ┣┫┣ ┗┓┃┃┣┫┃┃┃┃┃┃┃┃┃┓
 # ┛┗┗┛┗┛┣┛┛┗┗┻┛┛┗┻┛┗┗┛
@@ -94,7 +94,7 @@ on first join:
             wait 2 seconds
             set {_icon} to {-infuse::icon::%{_eff}%::default-normal::1}
             set {_display_name} to join ((the first character of {_eff}) in uppercase) and subtext of {_eff} from characters 2 to (the length of {_eff})
-            send title ("%{_icon}%") with subtitle ("&e%{_display_name}% Effect") to (player) for (2 seconds) with fadein (10 ticks) and fadeout (10 ticks)
+            send title ("%{_icon}%") with subtitle ("<yellow>%{_display_name}% Effect") to (player) for (2 seconds) with fadein (10 ticks) and fadeout (10 ticks)
         
         set_infuse(player, "primary", {_eff}, false)
 
@@ -270,25 +270,39 @@ on consume:
     
     set_infuse(player, {_slot}, {_e}, {_a2})
 
-    set {_color} to "&b" if ({_slot} is "primary") else "&d"
-    send "%{@prefix}%Applied &f%{_e}% &7to %{_color}%%{_slot}%&7 slot."
+    set {_color} to "<aqua>" if ({_slot} is "primary") else "<light_purple>"
+    send "%{@prefix}%Applied <white>%{_e}% <gray>to %{_color}%%{_slot}%<gray> slot."
     play sound "block.enchantment_table.use" with pitch (1.1 if {_slot} is "primary" else 1.4) to player
 
 # ┓ ┏┏┓┳┓┓ ┳┓┏┓┳┳┏┓┳┓┳┓
 # ┃┃┃┃┃┣┫┃ ┃┃┃┓┃┃┣┫┣┫┃┃
 # ┗┻┛┗┛┛┗┗┛┻┛┗┛┗┛┛┗┛┗┻┛
 
+function update_disabled_state(p: player):
+    if {-infuse::config::disabled_worlds::*} contains world of {_p}:
+        set {infuse::disabled::%uuid of {_p}%} to true
+        stop
+    loop {infuse::disabled_bound_ids::*}:
+        if location of {_p} is not in bound of id loop-value:
+            set {infuse::disabled::%uuid of {_p}%} to true
+            stop
+    clear {infuse::disabled::%uuid of {_p}%}
+
 on bound enter:
     loop {infuse::disabled_bound_ids::*}:
         if bound id of event-bound is loop-value:
-            set {infuse::disabled::%uuid of player%} to true
+            update_disabled_state(player)
             stop
 
 on bound exit:
     loop {infuse::disabled_bound_ids::*}:
         if bound id of event-bound is loop-value:
-            clear {infuse::disabled::%uuid of player%}
+            update_disabled_state(player)
             stop
+
+on player world change:
+    update_disabled_state(player)
+
 
 #                                                                             ┓       
 #                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━

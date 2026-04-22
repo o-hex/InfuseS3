@@ -229,6 +229,8 @@ Notes:
 	-> To use /mapregion simply create a worldguard(or any other supported plugin) in your world, run /mapregion, then right click any block inside the region you just created
 	   The region will be automatically defined and all your effects will cease to work inside the region.
 
+        -> Your mapped region name must match the actual name of the region you assigned.
+
 ### RITUALS
     -> if you set the max amount of augments per effect to n
 	   there can only be n amounts of rituals active at once if none has been crafted yet

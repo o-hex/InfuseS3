@@ -1,0 +1,179 @@
+on load:
+    clear {-infuse::regions::*}
+    loop {infuse::disabled_bound_ids::*}:
+
+        cache_region(loop-value)
+
+function cache_region(id: text):
+    set {_b}   to bound of id {_id}
+    set {_lo}  to bound lesser corner of {_b}
+    set {_hi}  to bound greater corner of {_b}
+    set {-infuse::regions::%{_id}%::world} to world of {_lo}
+    set {-infuse::regions::%{_id}%::minX}  to x-coord of {_lo}
+    set {-infuse::regions::%{_id}%::minY}  to y-coord of {_lo}
+    set {-infuse::regions::%{_id}%::minZ}  to z-coord of {_lo}
+    set {-infuse::regions::%{_id}%::maxX}  to x-coord of {_hi}
+    set {-infuse::regions::%{_id}%::maxY}  to y-coord of {_hi}
+    set {-infuse::regions::%{_id}%::maxZ}  to z-coord of {_hi}
+
+function uncache_region(id: text):
+    delete {-infuse::regions::%{_id}%::world}
+    delete {-infuse::regions::%{_id}%::minX}
+    delete {-infuse::regions::%{_id}%::minY}
+    delete {-infuse::regions::%{_id}%::minZ}
+    delete {-infuse::regions::%{_id}%::maxX}
+    delete {-infuse::regions::%{_id}%::maxY}
+    delete {-infuse::regions::%{_id}%::maxZ}
+
+on tab complete of "/mapregion" and "/infuse:mapregion":
+    set tab completions for position 1 to "add", "delete", "list" and "clear"
+    if tab arg-1 is "add" or "delete":
+        set tab completions for position 2 to {infuse::disabled_bound_ids::*}
+
+command /mapregion [<text>] [<text>]:
+    prefix: infuse
+    permission: op
+    trigger:
+        if arg-1 is not set:
+            send "<yellow>/mapregion add <region-id>" to player
+            send "<yellow>/mapregion delete <region-id>" to player
+            send "<yellow>/mapregion list" to player
+            send "<yellow>/mapregion clear" to player
+            stop
+
+        if arg-1 is "list":
+            if {infuse::disabled_bound_ids::*} is not set:
+                send "<gray>No regions mapped." to player
+                stop
+            send "<yellow>Disabled regions:" to player
+            loop {infuse::disabled_bound_ids::*}:
+                set {_id} to loop-value
+                set {_b}  to bound of id {_id}
+                set {_lo} to bound lesser corner of {_b}
+                set {_hi} to bound greater corner of {_b}
+                send "<gray>  <white>%{_id}% <gray>→ (<white>%floor(x-coord of {_lo})%<gray>, <white>%floor(y-coord of {_lo})%<gray>, <white>%floor(z-coord of {_lo})%<gray>) to (<white>%floor(x-coord of {_hi})%<gray>, <white>%floor(y-coord of {_hi})%<gray>, <white>%floor(z-coord of {_hi})%<gray>)" to player
+            stop
+
+        if arg-1 is "clear":
+            loop {infuse::disabled_bound_ids::*}:
+                delete bound of id loop-value
+            clear {infuse::disabled_bound_ids::*}
+            clear {-infuse::regions::*}
+            send "<gray>All mapped regions cleared." to player
+            stop
+
+        if arg-2 is not set:
+            send "<red>Usage: /mapregion %arg-1% <region-id>" to player
+            stop
+
+        if arg-1 is "add":
+            set {_probe} to location at x 0, y 0, z 0 in world of player
+            set {_clean} to arg-2
+            if {_clean} contains " ":
+                send "<red>Region names cannot contain spaces." to player
+                stop
+            set {infuse::mapping::pending::%player%} to arg-2
+            send "<gray>Right-click any block inside<gray> region <white>'%arg-2%'<gray> to confirm and begin mapping." to player
+            stop
+
+        if arg-1 is "delete":
+            set {_bId} to arg-2
+            if {infuse::disabled_bound_ids::*} does not contain {_bId}:
+                send "<red>Region <white>'%arg-2%'<red> is not mapped." to player
+                stop
+            delete bound of id {_bId}
+            remove {_bId} from {infuse::disabled_bound_ids::*}
+            uncache_region({_bId})
+            send "<gray>Removed region <white>'%arg-2%'<gray>." to player
+            stop
+
+        send "<red>Unknown argument <white>'%arg-1%'<red>. Run <white>/mapregion<red> for usage." to player
+
+on right click:
+    target is a block
+    {infuse::mapping::pending::%player%} is set
+    set {_id} to {infuse::mapping::pending::%player%}
+    if location of event-block is not contained in region {_id}:
+        send "<red>[Infuse] The block you clicked is not inside region <white>'%{_id}%'<red>." to player
+        send "<gray>Make sure the region name is correct and click a block inside<gray> it." to player
+        stop
+
+    clear {infuse::mapping::pending::%player%}
+    detect_region({_id}, location of event-block, player)
+
+function find_edge(id: text, sx: number, sy: number, sz: number, axis: text, outside: number, w: world, p: player) :: number:
+    locally suppress deprecated syntax warnings
+    if {_axis} is "x":
+        set {_inside} to {_sx}
+    else if {_axis} is "y":
+        set {_inside} to {_sy}
+    else:
+        set {_inside} to {_sz}
+
+    set {_iter} to 0
+
+    loop 55 times:
+        add 1 to {_iter}
+        if abs({_outside} - {_inside}) <= 1:
+            send "<gray>[%{_id}%] <white>%{_axis}% <gray>converged after <white>%{_iter}% <gray>iterations → <green>%{_inside}%" to {_p}
+            return {_inside}
+
+        set {_mid} to floor(({_inside} + {_outside}) / 2)
+
+        if {_axis} is "x":
+            set {_test} to location at x {_mid}, y {_sy}, z {_sz} in {_w}
+        else if {_axis} is "y":
+            set {_test} to location at x {_sx}, y {_mid}, z {_sz} in {_w}
+        else:
+            set {_test} to location at x {_sx}, y {_sy}, z {_mid} in {_w}
+
+        if {_test} is in region {_id}:
+            set {_inside} to {_mid}
+            # send "<gray>[%{_id}%] <white>%{_axis}% <gray>iter <white>%{_iter}%<gray>: mid=<white>%{_mid}% <green>✔ inside <gray>(inside=<white>%{_inside}%<gray>, outside=<white>%{_outside}%<gray>)" to {_p}
+        else:
+            set {_outside} to {_mid}
+            # send "<gray>[%{_id}%] <white>%{_axis}% <gray>iter <white>%{_iter}%<gray>: mid=<white>%{_mid}% <red>✘ outside <gray>(inside=<white>%{_inside}%<gray>, outside=<white>%{_outside}%<gray>)" to {_p}
+
+    send "<gray>[%{_id}%] <white>%{_axis}% <yellow>reached iteration cap <gray>→ <green>%{_inside}%" to {_p}
+    return {_inside}
+
+function detect_region(id: text, seed: location, p: player):
+    set {_w}  to world of {_seed}
+    set {_sx} to floor(x-coord of {_seed})
+    set {_sy} to floor(y-coord of {_seed})
+    set {_sz} to floor(z-coord of {_seed})
+
+    send "<yellow>[Infuse] <gray>Starting mapping for <white>'%{_id}%'<gray>, seed: <white>(%{_sx}%, %{_sy}%, %{_sz}%)" to {_p}
+    # send "<gray>--- <white>x-axis <gray>---" to {_p}
+    set {_minX} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "x", -30000001, {_w}, {_p})
+    set {_maxX} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "x",  30000001, {_w}, {_p}) + 1
+    # send "<gray>--- <white>y-axis <gray>---" to {_p}
+    set {_minY} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "y", -65,       {_w}, {_p})
+    set {_maxY} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "y",  321,      {_w}, {_p})
+    # send "<gray>--- <white>z-axis <gray>---" to {_p}
+    set {_minZ} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "z", -30000001, {_w}, {_p})
+    set {_maxZ} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "z",  30000001, {_w}, {_p}) + 1
+
+    set {_bId}  to "infuse_disabled_%{_id}%"
+    set {_minL} to location at x {_minX}, y {_minY}, z {_minZ} in {_w}
+    set {_maxL} to location at x {_maxX}, y {_maxY}, z {_maxZ} in {_w}
+
+    if bound of id {_bId} is set:
+        resize bound (bound of id {_bId}) between {_minL} and {_maxL}
+        add {_bId} to {infuse::disabled_bound_ids::*} 
+        send "<gray>[Infuse] Resized existing bound <white>'%{_bId}%'" to {_p}
+    else:
+        create a new bound with id {_bId} between {_minL} and {_maxL}
+        add {_bId} to {infuse::disabled_bound_ids::*}
+        send "<gray>[Infuse] Created new bound <white>'%{_bId}%'" to {_p}
+
+    cache_region({_bId})
+
+    send "" to {_p}
+    send "<yellow>[Infuse] <white>Mapping complete: <white>'%{_id}%'" to {_p}
+    send "<gray>  Min corner: <white>(%{_minX}%, %{_minY}%, %{_minZ}%)" to {_p}
+    send "<gray>  Max corner: <white>(%{_maxX}%, %{_maxY}%, %{_maxZ}%)" to {_p}
+    send "<gray>  Dimensions: <white>%abs({_maxX} - {_minX})% <gray>x <white>%abs({_maxY} - {_minY})% <gray>x <white>%abs({_maxZ} - {_minZ})%" to {_p}
+    send "<gray>  Bound id:   <white>%{_bId}%" to {_p}
+    send "" to {_p}
+    send "[Infuse] '%{_id}%' → (%{_minX}%, %{_minY}%, %{_minZ}%) to (%{_maxX}%, %{_maxY}%, %{_maxZ}%)" to console

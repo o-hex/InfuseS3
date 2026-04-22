@@ -92,7 +92,7 @@ function oxygen_bar(p: player, current: number, max: number):
             delete {-infuse::transient::%{_u}%::ocean_bar}
         stop
     if {-infuse::transient::%{_u}%::ocean_bar} is not set:
-        set {-infuse::transient::%{_u}%::ocean_bar} to boss bar with title "&bOxygen" with color blue with progress 100 # Same here, can't change minimessage
+        set {-infuse::transient::%{_u}%::ocean_bar} to boss bar with title "§bOxygen" with color blue with progress 100 # Same here, can't change minimessage
         add {_p} to bar players of {-infuse::transient::%{_u}%::ocean_bar}
     set {_pct} to ({_current} / {_max}) * 100
     if {_pct} <= 20:

@@ -17,6 +17,9 @@
 options:
     # fire.spread_check: 5 ticks                 | Modify manually
 
+    disabled_worlds: "disabled_world"            # This does not require worldguard to use, and all players in these worlds will be unable to use their infuse effects
+                                                 # If you wish to disable a specific region inside a world, then please take a look at /mapregion
+
     allow_same_effects: false                    # means you can stack the same effects for halving the cooldown, personally i find this interesting
     allow_true_damage: true                      # ignore
     roll_first_join: false                       # if your server receives a bot attack, there will be thousands of display entities, i've tested it with 60 roll animations at once it was sort of okay
@@ -231,12 +234,13 @@ options:
     ender.curse_duration: 15 seconds
     ender.teleport_max_radius: 15
 
-    ender.cooldown: 15 seconds
+    ender.cooldown: 30 seconds
     ender.spark: 1 second
 
 on load:
     clear {-infuse::config::*}
     # set {-infuse::config::skip_initialization} to {@skip_initialization}
+    set {-infuse::config::disabled_worlds::*} to {@disabled_worlds}
     set {-infuse::config::allow_same_effects} to {@allow_same_effects}
     set {-infuse::config::allow_true_damage} to {@allow_true_damage}
     set {-infuse::config::roll_first_join} to {@roll_first_join}

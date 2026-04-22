@@ -1,3 +1,30 @@
+on load:
+    clear {-infuse::regions::*}
+    loop {infuse::disabled_bound_ids::*}:
+
+        cache_region(loop-value)
+
+function cache_region(id: text):
+    set {_b}   to bound of id {_id}
+    set {_lo}  to bound lesser corner of {_b}
+    set {_hi}  to bound greater corner of {_b}
+    set {-infuse::regions::%{_id}%::world} to world of {_lo}
+    set {-infuse::regions::%{_id}%::minX}  to x-coord of {_lo}
+    set {-infuse::regions::%{_id}%::minY}  to y-coord of {_lo}
+    set {-infuse::regions::%{_id}%::minZ}  to z-coord of {_lo}
+    set {-infuse::regions::%{_id}%::maxX}  to x-coord of {_hi}
+    set {-infuse::regions::%{_id}%::maxY}  to y-coord of {_hi}
+    set {-infuse::regions::%{_id}%::maxZ}  to z-coord of {_hi}
+
+function uncache_region(id: text):
+    delete {-infuse::regions::%{_id}%::world}
+    delete {-infuse::regions::%{_id}%::minX}
+    delete {-infuse::regions::%{_id}%::minY}
+    delete {-infuse::regions::%{_id}%::minZ}
+    delete {-infuse::regions::%{_id}%::maxX}
+    delete {-infuse::regions::%{_id}%::maxY}
+    delete {-infuse::regions::%{_id}%::maxZ}
+
 on tab complete of "/mapregion" and "/infuse:mapregion":
     set tab completions for position 1 to "add", "delete", "list" and "clear"
     if tab arg-1 is "add" or "delete":
@@ -21,7 +48,7 @@ command /mapregion [<text>] [<text>]:
             send "&eDisabled regions:" to player
             loop {infuse::disabled_bound_ids::*}:
                 set {_id} to loop-value
-                set {_b} to bound of id {_id}
+                set {_b}  to bound of id {_id}
                 set {_lo} to bound lesser corner of {_b}
                 set {_hi} to bound greater corner of {_b}
                 send "&7  &f%{_id}% &7→ (&f%floor(x-coord of {_lo})%&7, &f%floor(y-coord of {_lo})%&7, &f%floor(z-coord of {_lo})%&7) to (&f%floor(x-coord of {_hi})%&7, &f%floor(y-coord of {_hi})%&7, &f%floor(z-coord of {_hi})%&7)" to player
@@ -31,6 +58,7 @@ command /mapregion [<text>] [<text>]:
             loop {infuse::disabled_bound_ids::*}:
                 delete bound of id loop-value
             clear {infuse::disabled_bound_ids::*}
+            clear {-infuse::regions::*}
             send "&7All mapped regions cleared." to player
             stop
 
@@ -39,8 +67,13 @@ command /mapregion [<text>] [<text>]:
             stop
 
         if arg-1 is "add":
+            set {_probe} to location at x 0, y 0, z 0 in world of player
+            set {_clean} to arg-2
+            if {_clean} contains " ":
+                send "&cRegion names cannot contain spaces." to player
+                stop
             set {infuse::mapping::pending::%player%} to arg-2
-            send "&7Right-click any block inside region &f'%arg-2%'&7." to player
+            send "&7Right-click any block &ninside&7 region &f'%arg-2%'&7 to confirm and begin mapping." to player
             stop
 
         if arg-1 is "delete":
@@ -50,6 +83,7 @@ command /mapregion [<text>] [<text>]:
                 stop
             delete bound of id {_bId}
             remove {_bId} from {infuse::disabled_bound_ids::*}
+            uncache_region({_bId})
             send "&7Removed region &f'%arg-2%'&7." to player
             stop
 
@@ -59,10 +93,16 @@ on right click:
     target is a block
     {infuse::mapping::pending::%player%} is set
     set {_id} to {infuse::mapping::pending::%player%}
+    if location of event-block is not contained in region {_id}:
+        send "&c[Infuse] The block you clicked is not inside region &f'%{_id}%'&c." to player
+        send "&7Make sure the region name is correct and click a block &ninside&7 it." to player
+        stop
+
     clear {infuse::mapping::pending::%player%}
     detect_region({_id}, location of event-block, player)
 
 function find_edge(id: text, sx: number, sy: number, sz: number, axis: text, outside: number, w: world, p: player) :: number:
+    locally suppress deprecated syntax warnings
     if {_axis} is "x":
         set {_inside} to {_sx}
     else if {_axis} is "y":
@@ -89,10 +129,10 @@ function find_edge(id: text, sx: number, sy: number, sz: number, axis: text, out
 
         if {_test} is in region {_id}:
             set {_inside} to {_mid}
-            send "&7[%{_id}%] &f%{_axis}% &7iter &f%{_iter}%&7: mid=&f%{_mid}% &a✔ inside &7(inside=&f%{_inside}%&7, outside=&f%{_outside}%&7)" to {_p}
+            # send "&7[%{_id}%] &f%{_axis}% &7iter &f%{_iter}%&7: mid=&f%{_mid}% &a✔ inside &7(inside=&f%{_inside}%&7, outside=&f%{_outside}%&7)" to {_p}
         else:
             set {_outside} to {_mid}
-            send "&7[%{_id}%] &f%{_axis}% &7iter &f%{_iter}%&7: mid=&f%{_mid}% &c✘ outside &7(inside=&f%{_inside}%&7, outside=&f%{_outside}%&7)" to {_p}
+            # send "&7[%{_id}%] &f%{_axis}% &7iter &f%{_iter}%&7: mid=&f%{_mid}% &c✘ outside &7(inside=&f%{_inside}%&7, outside=&f%{_outside}%&7)" to {_p}
 
     send "&7[%{_id}%] &f%{_axis}% &ereached iteration cap &7→ &a%{_inside}%" to {_p}
     return {_inside}
@@ -104,13 +144,13 @@ function detect_region(id: text, seed: location, p: player):
     set {_sz} to floor(z-coord of {_seed})
 
     send "&e[Infuse] &7Starting mapping for &f'%{_id}%'&7, seed: &f(%{_sx}%, %{_sy}%, %{_sz}%)" to {_p}
-    send "&7--- &fx-axis &7---" to {_p}
+    # send "&7--- &fx-axis &7---" to {_p}
     set {_minX} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "x", -30000001, {_w}, {_p})
     set {_maxX} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "x",  30000001, {_w}, {_p}) + 1
-    send "&7--- &fy-axis &7---" to {_p}
+    # send "&7--- &fy-axis &7---" to {_p}
     set {_minY} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "y", -65,       {_w}, {_p})
     set {_maxY} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "y",  321,      {_w}, {_p})
-    send "&7--- &fz-axis &7---" to {_p}
+    # send "&7--- &fz-axis &7---" to {_p}
     set {_minZ} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "z", -30000001, {_w}, {_p})
     set {_maxZ} to find_edge({_id}, {_sx}, {_sy}, {_sz}, "z",  30000001, {_w}, {_p}) + 1
 
@@ -120,11 +160,14 @@ function detect_region(id: text, seed: location, p: player):
 
     if bound of id {_bId} is set:
         resize bound (bound of id {_bId}) between {_minL} and {_maxL}
+        add {_bId} to {infuse::disabled_bound_ids::*} 
         send "&7[Infuse] Resized existing bound &f'%{_bId}%'" to {_p}
     else:
         create a new bound with id {_bId} between {_minL} and {_maxL}
         add {_bId} to {infuse::disabled_bound_ids::*}
         send "&7[Infuse] Created new bound &f'%{_bId}%'" to {_p}
+
+    cache_region({_bId})
 
     send "" to {_p}
     send "&e[Infuse] &fMapping complete: &f'%{_id}%'" to {_p}
@@ -134,40 +177,3 @@ function detect_region(id: text, seed: location, p: player):
     send "&7  Bound id:   &f%{_bId}%" to {_p}
     send "" to {_p}
     send "[Infuse] '%{_id}%' → (%{_minX}%, %{_minY}%, %{_minZ}%) to (%{_maxX}%, %{_maxY}%, %{_maxZ}%)" to console
-
-function loc_int(loc: location) :: boolean:
-    loop {infuse::disabled_bound_ids::*}:
-        if {_loc} is within (bound of id loop-value):
-            return true
-    return false
-
-function sphere_int(center: location, r: number) :: boolean:
-    set {_cx} to x-coord of {_center}
-    set {_cy} to y-coord of {_center}
-    set {_cz} to z-coord of {_center}
-    set {_r2} to {_r} * {_r}
-
-    loop {infuse::disabled_bound_ids::*}:
-        set {_b}  to bound of id loop-value
-        set {_lo} to bound lesser corner of {_b}
-        set {_hi} to bound greater corner of {_b}
-
-        set {_px} to clamp({_cx}, x-coord of {_lo}, x-coord of {_hi})
-        set {_py} to clamp({_cy}, y-coord of {_lo}, y-coord of {_hi})
-        set {_pz} to clamp({_cz}, z-coord of {_lo}, z-coord of {_hi})
-
-        set {_dx} to {_cx} - {_px}
-        set {_dy} to {_cy} - {_py}
-        set {_dz} to {_cz} - {_pz}
-
-        if ({_dx}*{_dx} + {_dy}*{_dy} + {_dz}*{_dz}) <= {_r2}:
-            return true
-
-    return false
-#                                                                             ┓       
-#                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
-#                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      
-#                                                                        ┛            
-#                                       ┏━    ┓            ┓•    •┓        ━┓ 
-#                                       ┃    ┏┫┏┓  ┏┓┏┓╋  ┏┫┓┏╋┏┓┓┣┓┓┏╋┏┓   ┃ 
-#                                       ┗━   ┗┻┗┛  ┛┗┗┛┗  ┗┻┗┛┗┛ ┗┗┛┗┻┗┗   ━┛ 

@@ -138,6 +138,42 @@ function getRGB(speed: number = 1, offset: number = 0, brightness: number = 255)
         set {_b} to {_q}
 
     return rgb({_r}, {_g}, {_b})
+
+function loc_int(loc: location) :: boolean:
+    parse if plugin "WorldGuard" is enabled:
+        set {_w} to world of {_loc}
+        set {_x} to x-coord of {_loc}
+        set {_y} to y-coord of {_loc}
+        set {_z} to z-coord of {_loc}
+        loop {infuse::disabled_bound_ids::*}:
+            set {_id} to loop-value
+            if {-infuse::regions::%{_id}%::world} is {_w}:
+                if {_x} is between {-infuse::regions::%{_id}%::minX} and {-infuse::regions::%{_id}%::maxX}:
+                    if {_y} is between {-infuse::regions::%{_id}%::minY} and {-infuse::regions::%{_id}%::maxY}:
+                        if {_z} is between {-infuse::regions::%{_id}%::minZ} and {-infuse::regions::%{_id}%::maxZ}:
+                            return true
+    return false
+
+function sphere_int(center: location, r: number) :: boolean:
+    parse if plugin "WorldGuard" is enabled:
+        set {_w}  to world of {_center}
+        set {_cx} to x-coord of {_center}
+        set {_cy} to y-coord of {_center}
+        set {_cz} to z-coord of {_center}
+        set {_r2} to {_r} * {_r}
+        loop {infuse::disabled_bound_ids::*}:
+            set {_id} to loop-value
+            if {-infuse::regions::%{_id}%::world} is {_w}:
+                set {_px} to clamp({_cx}, {-infuse::regions::%{_id}%::minX}, {-infuse::regions::%{_id}%::maxX})
+                set {_py} to clamp({_cy}, {-infuse::regions::%{_id}%::minY}, {-infuse::regions::%{_id}%::maxY})
+                set {_pz} to clamp({_cz}, {-infuse::regions::%{_id}%::minZ}, {-infuse::regions::%{_id}%::maxZ})
+                set {_dx} to {_cx} - {_px}
+                set {_dy} to {_cy} - {_py}
+                set {_dz} to {_cz} - {_pz}
+                if ({_dx}*{_dx} + {_dy}*{_dy} + {_dz}*{_dz}) <= {_r2}:
+                    return true
+    return false
+    
 #                                                                             ┓       
 #                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
 #                                       ┛    ┗    ┗┻    ┛┗    ┗    ┗    ┗┫    ┛┗      

@@ -33,8 +33,8 @@ function animate_roll(p: player, seff: text):
     loop {_eff} in {infuse::effects::*}:
         if {_eff} is not "earth" or "ender":
             spawn text display at (location 1 block below {_p})
-            set {_e} to last spawned entity
-            set {_se} to last spawned entity if {_eff} is {_seff}
+            set {_e} to last spawned text display
+            set {_se} to last spawned text display if {_eff} is {_seff}
 
             set billboard of {_e} to center
             set the teleport duration of {_e} to 1 ticks
@@ -92,9 +92,9 @@ function animate_roll(p: player, seff: text):
     wait 2 tick
     kill {_se}
 
-# command /roll <text>:
-#     trigger:
-#         animate_roll(player, arg-1)
+command /roll <text>:
+    trigger:
+        animate_roll(player, arg-1)
 
 #                                                                             ┓       
 #                                 ━━    ┏    ╋    ┏┓    ┏┓    ┏    ┓    ┓┏    ┃┏    ━━
