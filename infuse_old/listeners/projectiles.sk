@@ -56,15 +56,15 @@ on shoot:
         #     else:
         #         stop
 
-on ready arrow:
-    if has_infuse(event-player, "speed") is true:
-        item cooldown of selected bow for player <= 0 seconds
-        set item cooldown of selected bow for player to 3 tick
-        wait 3 tick
-        interrupt use of event-player's item
-        make event-player shoot arrow at speed 50
-        # send nearest entity relative to player to player
-        play sound "entity.arrow.shoot" at player
+# on ready arrow:
+#     if has_infuse(event-player, "speed") is true:
+#         item cooldown of selected bow for player <= 0 seconds
+#         set item cooldown of selected bow for player to 3 tick
+#         wait 3 tick
+#         interrupt use of event-player's item
+#         make event-player shoot arrow at speed 50
+#         # send nearest entity relative to player to player
+#         play sound "entity.arrow.shoot" at player
 
 # ┏┓┳┓┳┓┏┓┳┓
 # ┣ ┃┃┃┃┣ ┣┫
