@@ -231,7 +231,7 @@ function get_item(e: text, a: boolean, ei: boolean = false) :: item:
         set {_limit} to {-infuse::config::%{_e}%::augment_limit}
         set {_crafted} to {infuse::ritual::%{_e}%::crafted} ? 0
         if {_limit} > 0:
-            add "&7ᴄʀᴀꜰᴛᴇᴅ ᴀᴜɢᴍᴇɴᴛꜱ: &f%max({_limit}, {_crafted})%" to {_l::*}
+            add "&7ᴄʀᴀꜰᴛᴇᴅ ᴀᴜɢᴍᴇɴᴛꜱ: &f%min({_limit}, {_crafted})%" to {_l::*}
         else:
             add "&cᴀᴜɢᴍᴇɴᴛꜱ ᴅɪꜱᴀʙʟᴇᴅ" to {_l::*}
         add "&7ᴛᴏᴛᴀʟ ᴄʀᴀꜰᴛᴇᴅ: &f%{_crafted}%" to {_l::*}
