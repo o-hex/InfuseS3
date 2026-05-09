@@ -283,9 +283,10 @@ function update_disabled_state(p: player):
         set {infuse::disabled::%uuid of {_p}%} to true
         stop
     loop {infuse::disabled_bound_ids::*}:
-        if location of {_p} is not in bound of id loop-value:
-            set {infuse::disabled::%uuid of {_p}%} to true
-            stop
+        if world of {_p} is bound world of bound of id loop-value:
+            if location of {_p} is in bound of id loop-value:
+                set {infuse::disabled::%uuid of {_p}%} to true
+                stop
     clear {infuse::disabled::%uuid of {_p}%}
 
 on bound enter:
