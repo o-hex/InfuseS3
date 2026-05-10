@@ -367,21 +367,22 @@ every 1 second:
                 set {_v} to loop-player-2
                 set {_v_u} to uuid of {_v}
                 {_v} is not {_p}
-                
-                if {infuse::trust::%{_u}%::%{_v_u}%} is not set:
-                    if {_v} does not have water breathing:
-                        set {_res} to level of respiration of helmet of {_v}
-                        set {_v_max} to (15 + ({_res} * 15))
-                        
-                        set {-infuse::transient::%{_v_u}%::ocean_air} to {-infuse::transient::%{_v_u}%::ocean_air} ? {_v_max}
-                        remove 1 from {-infuse::transient::%{_v_u}%::ocean_air}
-                        
-                        if {-infuse::transient::%{_v_u}%::ocean_air} <= 0:
-                            set {-infuse::transient::%{_v_u}%::ocean_air} to 0
-                            make {_p} damage {_v} by {-infuse::config::ocean::drown_damage}
-                        
-                        oxygen_bar({_v}, {-infuse::transient::%{_v_u}%::ocean_air}, {_v_max})
-                        set {-infuse::transient::%{_v_u}%::ocean_active} to now
+
+                if {infuse::disabled::%{_v_u}%} is not set: # i added this here
+                    if {infuse::trust::%{_u}%::%{_v_u}%} is not set:
+                        if {_v} does not have water breathing:
+                            set {_res} to level of respiration of helmet of {_v}
+                            set {_v_max} to (15 + ({_res} * 15))
+                            
+                            set {-infuse::transient::%{_v_u}%::ocean_air} to {-infuse::transient::%{_v_u}%::ocean_air} ? {_v_max}
+                            remove 1 from {-infuse::transient::%{_v_u}%::ocean_air}
+                            
+                            if {-infuse::transient::%{_v_u}%::ocean_air} <= 0:
+                                set {-infuse::transient::%{_v_u}%::ocean_air} to 0
+                                make {_p} damage {_v} by {-infuse::config::ocean::drown_damage}
+                            
+                            oxygen_bar({_v}, {-infuse::transient::%{_v_u}%::ocean_air}, {_v_max})
+                            set {-infuse::transient::%{_v_u}%::ocean_active} to now
 
         if {-infuse::transient::%{_u}%::ocean_air} is set:
             if difference between {-infuse::transient::%{_u}%::ocean_active} and now > 1.1 seconds:
@@ -575,7 +576,7 @@ every 5 ticks:
         #     loop blocks in radius 2 around loop-player:
         #         if loop-block is water:
         #             update loop-block to be frosted ice
-        {infuse::disabled::%{_u}%} is not set
+        {infuse::disabled::%uuid of loop-player%} is not set
 
         if loop-player is burning:
             if has_infuse(loop-player, "fire") is true:
@@ -599,7 +600,6 @@ every 5 ticks:
             if {_canSpread} is true:
                 loop all players in radius 1.5 of loop-player:
                     loop-player-2 is not loop-player-1
-
                     ignite loop-player-2 for 10 seconds
                     force draw (5 flame particles with an extra value of 0.5) at loop-player-2
                     play sound "block.fire.ambient" with volume 0.7 at loop-player-2
