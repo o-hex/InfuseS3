@@ -69,6 +69,9 @@ on death of player:
         replace first "%attacker%" in {_m} with "<obfuscated>iiiiiiiiiiiiiiiiii<reset>" # jank?
         set death message to {_m}
 
+    if {-infuse::transient::%uuid of victim%::ender_cursed} > 0:
+        clear {-infuse::transient::%uuid of victim%::ender_cursed}
+        
     if {-infuse::config::head_drop} is true:
         attacker is not victim
         set {_i} to player head

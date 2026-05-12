@@ -325,7 +325,7 @@ every 2 ticks:
             loop all players in radius {-infuse::config::ender::untrust_glow_radius} around {_p}:
                 set {_v} to loop-player-2
                 {_v} is not {_p}
-                apply potion effect of glowing of tier 1 to {_v} for 2 ticks:
+                apply potion effect of glowing of tier 1 to {_v} for 4 ticks:
                     hide the icon
                     hide the particles
 
